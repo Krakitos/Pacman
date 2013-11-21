@@ -49,6 +49,14 @@ ipch/
 *.vsp
 *.vspx
 
+# images files
+*.png
+
+# sound files
+*.wav
+*.mp3
+*.ogg
+
 # Guidance Automation Toolkit
 *.gpState
 
