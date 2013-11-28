@@ -57,6 +57,9 @@ ipch/
 *.mp3
 *.ogg
 
+# map files
+*.txt
+
 # Guidance Automation Toolkit
 *.gpState
 
