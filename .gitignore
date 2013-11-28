@@ -37,6 +37,11 @@ x64/
 *.vssscc
 .builds
 
+# Visual csproj
+*.csproj
+*.csproj.Debug.cachefile
+*.contentproj
+
 # Visual C++ cache files
 ipch/
 *.aps
@@ -51,14 +56,13 @@ ipch/
 
 # images files
 *.png
+*.ico
+Thumbs.db
 
 # sound files
 *.wav
 *.mp3
 *.ogg
-
-# map files
-*.txt
 
 # Guidance Automation Toolkit
 *.gpState
