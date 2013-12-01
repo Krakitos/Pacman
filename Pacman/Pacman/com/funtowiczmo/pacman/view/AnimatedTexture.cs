@@ -19,83 +19,94 @@ namespace Pacman.com.funtowiczmo.pacman.utils
 {
     public class AnimatedTexture
     {
-        //private Texture2D myTexture;
-        private float TimePerFrame;
-        private int Frame;
-        private float TotalElapsed;
-        private bool Paused;
+        private float timePerFrame;
+        private float totalElapsed;
+        private int frame;
+        public float scale;
+        private bool paused;
         private List<Texture2D> skins;
-
-        public float Scale;
 
         public AnimatedTexture()
         {
-            this.Scale = 1;
+            this.scale = 1;
         }
 
         public AnimatedTexture(float scale)
         {
-            this.Scale = scale;
+            this.scale = scale;
         }
 
-        public void Load(string asset, int framesPerSec)
+        protected void Load(string asset, int framesPerSec)
         {
             skins = new List<Texture2D>();
 
             skins.Add(AssetsManager.GetInstance().GetTexture(asset));
-            TimePerFrame = (float)1 / framesPerSec;
-            Frame = 0;
-            TotalElapsed = 0;
-            Paused = false;
+            timePerFrame = (float)1 / framesPerSec;
+            frame = 0;
+            totalElapsed = 0;
+            paused = false;
         }
 
-        public void Load(string[] assets, int framesPerSec)
+        protected void Load(string[] assets, int framesPerSec)
         {
             skins = new List<Texture2D>(assets.Length);
 
             for (int i = 0; i < assets.Length; i++) skins.Add(AssetsManager.GetInstance().GetTexture(assets[i]));
 
-            TimePerFrame = (float)1 / framesPerSec;
-            Frame = 0;
-            TotalElapsed = 0;
-            Paused = false;
+            timePerFrame = (float)1 / framesPerSec;
+            frame = 0;
+            totalElapsed = 0;
+            paused = false;
         }
 
-        public void UpdateFrame(float elapsed)
+        protected void Load(string[] assets)
         {
-            if (Paused)
+            skins = new List<Texture2D>(assets.Length);
+
+            for (int i = 0; i < assets.Length; i++) skins.Add(AssetsManager.GetInstance().GetTexture(assets[i]));
+
+            timePerFrame = (float)1/assets.Length;
+            frame = 0;
+            totalElapsed = 0;
+            paused = false;
+        }
+
+        protected void UpdateFrame(float elapsed)
+        {
+            if (paused)
                 return;
-            TotalElapsed += elapsed;
-            if (TotalElapsed > TimePerFrame)
+
+            totalElapsed += elapsed;
+            if (totalElapsed > timePerFrame)
             {
-                Frame++;
+                frame++;
                 // Keep the Frame between 0 and the total frames, minus one.
-                Frame = Frame % skins.Count;
-                TotalElapsed -= TimePerFrame;
+                frame = frame % skins.Count;
+                totalElapsed -= timePerFrame;
             }
         }
 
         // class AnimatedTexture
         public void DrawFrame(SpriteBatch batch, Vector2 screenPos)
         {
-            DrawFrame(batch, Frame, screenPos);
+            DrawFrame(batch, frame, screenPos);
         }
 
         public void DrawFrame(SpriteBatch batch, int frame, Vector2 screenPos)
         {
             //Rectangle sourcerect = new Rectangle(frameWidth * frame, 0, frameWidth, myTexture.Height);
-            Frame = frame;
-            batch.Draw(skins[Frame], screenPos, Color.White);
+            this.frame = frame;
+            batch.Draw(skins[frame], screenPos, Color.White);
         }
 
         public bool IsPaused
         {
-            get { return Paused; }
+            get { return paused; }
         }
         public void Reset()
         {
-            Frame = 0;
-            TotalElapsed = 0f;
+            frame = 0;
+            totalElapsed = 0f;
         }
         public void Stop()
         {
@@ -104,17 +115,26 @@ namespace Pacman.com.funtowiczmo.pacman.utils
         }
         public void Play()
         {
-            Paused = false;
+            paused = false;
         }
         public void Pause()
         {
-            Paused = true;
+            paused = true;
         }
 
         public string Skin
         {
-            get { return skins[Frame].Name; }
+            get { return skins[frame].Name; }
         }
 
+        public int Width
+        {
+            get { return skins[frame].Width; }
+        }
+
+        public int Height
+        {
+            get { return skins[frame].Height; }
+        }
     }
 }

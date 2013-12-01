@@ -13,6 +13,11 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
 		public void ComputeNextMove() {
 			throw new System.Exception("Not implemented");
 		}
+
+        public override string[] GetDefaultSkins()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

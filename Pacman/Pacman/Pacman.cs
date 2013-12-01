@@ -17,6 +17,7 @@ using Pacman.com.funtowiczmo.pacman.utils;
 using Pacman.com.funtowiczmo.pacman.view;
 using Pacman.com.funtowiczmo.pacman.errors;
 using Pacman.com.funtowiczmo.pacman.entity.impl;
+using Pacman.com.funtowiczmo.pacman.view.impl;
 
 namespace Pacman
 {
@@ -26,10 +27,11 @@ namespace Pacman
     public class Pacman : Microsoft.Xna.Framework.Game
     {
 
-        //Constante
+        //Constantes
         public const int GOD_MODE_TIME = 100; //ms
 
-
+        //Variables de contexte
+        bool firstFrame = true;
 
         //Map
         Map map;
@@ -37,6 +39,7 @@ namespace Pacman
 
         //Pacman
         PacmanEntity pacman;
+        List<EntityView> entitiesView;
         GameTime godModeStartingTime;
 
         //Internal var
@@ -61,7 +64,6 @@ namespace Pacman
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Ajouter votre logique d’initialisation ici
             pacman = new PacmanEntity();
 
             base.Initialize();
@@ -78,8 +80,6 @@ namespace Pacman
 
             // TODO: utilisez this.Content pour charger votre contenu de jeu ici
             AssetsManager instance = AssetsManager.GetInstance();
-
-            Console.WriteLine("Loading Texture and Sounds");
 
             instance.AddTexture(EntitySkinEnum.PACMAN_BAS_1, Content.Load<Texture2D>(EntitySkinEnum.PACMAN_BAS_1));
             instance.AddTexture(EntitySkinEnum.PACMAN_BAS_2, Content.Load<Texture2D>(EntitySkinEnum.PACMAN_BAS_2));
@@ -111,6 +111,7 @@ namespace Pacman
             instance.AddSound(SoundEnum.SIREN, Content.Load<SoundEffect>(SoundEnum.SIREN));
 
             LoadMap();
+            InitEntitiesViews();
         }
 
         private void LoadMap()
@@ -130,7 +131,7 @@ namespace Pacman
             }
 
             MapAdapter adapter = new MapAdapter(map);
-            mapView = new MapView(GraphicsDevice);
+            mapView = new MapView();
             adapter.DrawMap(mapView);
         }
 
@@ -156,6 +157,11 @@ namespace Pacman
                 this.Exit();
             
             // TODO: Ajoutez votre logique de mise à jour ici
+            // Mise à jour des skin des entityview en fonction du temps écoulé
+            foreach (EntityView ev in entitiesView)
+            {
+                ev.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
 
             //Check si le pacman est toujours invulnérable
             if (pacman.IsGodMode)
@@ -182,20 +188,82 @@ namespace Pacman
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Ajoutez votre code de dessin ici
-            //Mise à jour de la map
-            mapView.Begin();
-            if (mapView.NeedRefresh) mapView.UpdateMap(); 
-            mapView.End();
 
-            //Mise à jour de PacMan
+            //Début de la mise à jour de l'affichage
+            spriteBatch.Begin();
+
+            //Mise à jour de la map si necessaire
+            mapView.UpdateMap(spriteBatch);
+
+            if (firstFrame)
+            {
+                firstFrame = false;
+                pacman.SetInitialPosition(map.GetRandomInitialPacmanPosition());
+            }
+
+            //Mise à jour des entités visuelles
+            foreach (EntityView ev in entitiesView)
+            {
+
+                if (ev.GetType() == typeof(PacmanView))
+                {
+                   //Si le dernier mouvement est terminé
+                   if (pacman.IsMovementEnded)
+                    {
+                       //On demande à calculer le prochain mouvement que Pacman effectura
+                        Vector2 next = pacman.GetNextMove();
+
+                        if (map.IsNextMoveAuthorized(next)) //On demande à la map de vérifier que ce mouvement est possible
+                        {
+                            //Initialisation du mouvement, on récupère les positions sur l'écran via la vue de la map qui s'occupe de la conversion
+                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next));
+                            
+                            //Définition du point d'arriver dans le reférentiel de la map
+                            pacman.Position = next;
+
+                            //Récupération du prochain point calculé
+                            Vector2 destPoint = pacman.UpdatePosition(gameTime, pacman.Direction);
+
+                            //Affichage
+                            ev.DrawFrame(spriteBatch, destPoint);
+                        }
+                    }
+                   else //Sinon on met à jour le mouvement actuel
+                   {
+                       //Récupération du prochain point calculé
+                       Vector2 destPoint = pacman.UpdatePosition(gameTime, pacman.Direction);
+
+                       //Affichage
+                       ev.DrawFrame(spriteBatch, destPoint);
+                   }
+                }
+                else
+                {
+                    //TODO : Gérer les fantomes
+                }
+            }
+
+            //Fin de la mise a jour
+            spriteBatch.End();
+            
             base.Draw(gameTime);
+        }
+
+
+        private void InitEntitiesViews()
+        {
+            entitiesView = new List<EntityView>();
+
+            //Vue pour Pacman
+            EntityView pv = new PacmanView(pacman);
+            entitiesView.Add(pv);
         }
 
         private void HandleKeyboardInput()
         {
             KeyboardState state = Keyboard.GetState();
 
-            //We only check for one direction change at frame
+            //On limite à un seul changement de direction par appel à Update().
             if (!state.IsKeyDown(Keys.Up))
             {
                 if (!state.IsKeyDown(Keys.Down))
@@ -205,25 +273,29 @@ namespace Pacman
                         if (state.IsKeyDown(Keys.Right))
                         {
                             //Handle Right key down
-                            Console.WriteLine("Right pressed");
+                            pacman.Direction = EntityDirectionEnum.RIGH;
+                            pacman.AbortMovement();
                         }
                     }
                     else
                     {
                         //Handle Left key down
-                        Console.WriteLine("Left pressed");
+                        pacman.Direction = EntityDirectionEnum.LEFT;
+                        pacman.AbortMovement();
                     }
                 }
                 else
                 {
                     //Handle Down key down
-                    Console.WriteLine("Down pressed");
+                    pacman.Direction = EntityDirectionEnum.BOTTOM;
+                    pacman.AbortMovement();
                 }
             }
             else
             {
                 //Handle Up key down
-                Console.WriteLine("Up pressed");
+                pacman.Direction = EntityDirectionEnum.TOP;
+                pacman.AbortMovement();
             }
         }
     }

@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Pacman.com.funtowiczmo.pacman.errors;
 using Pacman.com.funtowiczmo.pacman.map.signal;
 using System;
@@ -10,6 +11,9 @@ namespace Pacman.com.funtowiczmo.pacman.map
 
         private int[][] grid;
         private string name;
+
+        private int beanItemsCount = 0;
+        private int bigBeanItemsCount = 0;
 
 		public Map(string name) {
             this.name = name;
@@ -31,6 +35,16 @@ namespace Pacman.com.funtowiczmo.pacman.map
         public string Name
         {
             get { return name; }
+        }
+
+        public int BeanCount
+        {
+            get { return beanItemsCount; }
+        }
+
+        public int BigBeanCount
+        {
+            get { return bigBeanItemsCount; }
         }
 
         public void Load()
@@ -59,6 +73,17 @@ namespace Pacman.com.funtowiczmo.pacman.map
                 for (int j = 0; j < cellid.Length; j++)
                 {
                     grid[i][j] = Int32.Parse(cellid[j]);
+
+                    switch (grid[i][j])
+                    {
+                        case 1 :
+                            ++beanItemsCount;
+                            break;
+
+                        case 2 :
+                            ++bigBeanItemsCount;
+                            break;
+                    }
                 }
             }
         }
@@ -85,6 +110,31 @@ namespace Pacman.com.funtowiczmo.pacman.map
                 if (_observer != null && _observers.Contains(_observer))
                     _observers.Remove(_observer);
             }
+        }
+
+        public bool IsNextMoveAuthorized(int x, int y)
+        {
+            return grid[y][x] != 0;
+        }
+
+        public bool IsNextMoveAuthorized(Vector2 p)
+        {
+            return grid[(int)p.Y][(int)p.X] != 0;
+        }
+
+        public Vector2 GetRandomInitialPacmanPosition()
+        {
+            int x, y;
+            Random rand = new Random();
+
+            do
+            {
+                y = rand.Next(1, grid.Length - 1);
+                x = rand.Next(1, grid[y].Length - 1);
+
+            } while (grid[y][x] != 1);
+
+            return new Vector2(x, y);
         }
     }
 

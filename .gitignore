@@ -39,6 +39,7 @@ x64/
 
 # Visual csproj
 *.csproj
+*.sln
 *.csproj.Debug.cachefile
 *.contentproj
 
