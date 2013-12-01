@@ -39,7 +39,6 @@ x64/
 
 # Visual csproj
 *.csproj
-*.sln
 *.csproj.Debug.cachefile
 *.contentproj
 
@@ -54,16 +53,6 @@ ipch/
 *.psess
 *.vsp
 *.vspx
-
-# images files
-*.png
-*.ico
-Thumbs.db
-
-# sound files
-*.wav
-*.mp3
-*.ogg
 
 # Guidance Automation Toolkit
 *.gpState
