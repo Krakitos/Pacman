@@ -20,6 +20,7 @@ using Pacman.com.funtowiczmo.pacman.entity.impl;
 using Pacman.com.funtowiczmo.pacman.view.impl;
 using Pacman.com.funtowiczmo.pacman.utils.signal;
 using Pacman.com.funtowiczmo.pacman.map.signal;
+using Pacman.com.funtowiczmo.pacman.entity.ghost;
 
 namespace Pacman
 {
@@ -68,6 +69,7 @@ namespace Pacman
         {
             pacman = new PacmanEntity();
             pacman.Subscribe(this);
+
             base.Initialize();
         }
 
@@ -260,6 +262,7 @@ namespace Pacman
                 else
                 {
                     //TODO : Gérer les fantomes
+                    ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(1, 2));
                 }
             }
 
@@ -277,6 +280,9 @@ namespace Pacman
             //Vue pour Pacman
             EntityView pv = new PacmanView(pacman);
             entitiesView.Add(pv);
+
+            EntityView ghost = new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new RandomMovementPolicy()));
+            entitiesView.Add(ghost);
         }
 
         private void HandleKeyboardInput()
