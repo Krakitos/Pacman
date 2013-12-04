@@ -210,13 +210,15 @@ namespace Pacman
                    //Si le dernier mouvement est terminé
                    if (pacman.IsMovementEnded)
                     {
+
                        //On demande à calculer le prochain mouvement que Pacman effectura
                         Vector2 next = pacman.GetNextMove();
 
-                        if (map.IsNextMoveAuthorized(next)) //On demande à la map de vérifier que ce mouvement est possible
+                        //On demande à la map de vérifier que ce mouvement est possible
+                        if (map.IsNextMoveAuthorized(next)) 
                         {
                             //Initialisation du mouvement, on récupère les positions sur l'écran via la vue de la map qui s'occupe de la conversion
-                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next));
+                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next), 200);
                             
                             //Définition du point d'arriver dans le reférentiel de la map
                             pacman.Position = next;
@@ -226,6 +228,10 @@ namespace Pacman
 
                             //Affichage
                             ev.DrawFrame(spriteBatch, destPoint);
+                        }
+                        else
+                        {
+                            ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(pacman.Position));
                         }
                     }
                    else //Sinon on met à jour le mouvement actuel
@@ -237,10 +243,10 @@ namespace Pacman
                        ev.DrawFrame(spriteBatch, destPoint);
                    }
                 }
-                else
-                {
-                    //TODO : Gérer les fantomes
-                }
+            //    else
+            //    {
+            //        //TODO : Gérer les fantomes
+            //    }
             }
 
             //Fin de la mise a jour
@@ -273,29 +279,41 @@ namespace Pacman
                         if (state.IsKeyDown(Keys.Right))
                         {
                             //Handle Right key down
-                            pacman.Direction = EntityDirectionEnum.RIGH;
-                            pacman.AbortMovement();
+                            if (pacman.Direction != EntityDirectionEnum.RIGH)
+                            {
+                                pacman.Direction = EntityDirectionEnum.RIGH;
+                                pacman.AbortMovement();
+                            }
                         }
                     }
                     else
                     {
                         //Handle Left key down
-                        pacman.Direction = EntityDirectionEnum.LEFT;
-                        pacman.AbortMovement();
+                        if (pacman.Direction != EntityDirectionEnum.LEFT)
+                        {
+                            pacman.Direction = EntityDirectionEnum.LEFT;
+                            pacman.AbortMovement();
+                        }
                     }
                 }
                 else
                 {
                     //Handle Down key down
-                    pacman.Direction = EntityDirectionEnum.BOTTOM;
-                    pacman.AbortMovement();
+                    if (pacman.Direction != EntityDirectionEnum.BOTTOM)
+                    {
+                        pacman.Direction = EntityDirectionEnum.BOTTOM;
+                        pacman.AbortMovement();
+                    }
                 }
             }
             else
             {
                 //Handle Up key down
-                pacman.Direction = EntityDirectionEnum.TOP;
-                pacman.AbortMovement();
+                if (pacman.Direction != EntityDirectionEnum.TOP)
+                {
+                    pacman.Direction = EntityDirectionEnum.TOP;
+                    pacman.AbortMovement();
+                }
             }
         }
     }
