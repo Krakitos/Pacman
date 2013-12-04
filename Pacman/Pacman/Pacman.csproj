@@ -111,6 +111,7 @@
     <Compile Include="com\funtowiczmo\pacman\entity\EntityDirectionEnum.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\EntitySkinEnum.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\ghost\IMovementPolicy.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\RandomMovementPolicy.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\ghost\ShortestPathPolicy.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\IEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\impl\BeanEntity.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="com\funtowiczmo\pacman\errors\MapNotFoundException.cs" />
     <Compile Include="com\funtowiczmo\pacman\map\Map.cs" />
     <Compile Include="com\funtowiczmo\pacman\map\MapAdapter.cs" />
+    <Compile Include="com\funtowiczmo\pacman\map\signal\MapAllBeansEatenSignal.cs" />
     <Compile Include="com\funtowiczmo\pacman\map\signal\MapBeanEatenSignal.cs" />
     <Compile Include="com\funtowiczmo\pacman\map\signal\MapSignal.cs" />
     <Compile Include="com\funtowiczmo\pacman\sounds\SoundEnum.cs" />
