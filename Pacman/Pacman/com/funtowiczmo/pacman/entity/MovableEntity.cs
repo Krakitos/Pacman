@@ -20,6 +20,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity
         private Vector2 startingPosition;
         private Vector2 endingPosition;
         private Vector2 positionDiff;
+        private double duration;
         private TimeSpan startingTime; 
 
         //Indique si la totalité du mouvement à été effectuée
@@ -32,12 +33,31 @@ namespace Pacman.com.funtowiczmo.pacman.entity
             velocity = 1;
         }
 
+        /// <summary>
+        /// Initialize un nouveau mouvement
+        /// </summary>
+        /// <param name="time">Objet permettant d'accéder à la référence temporelle du jeu en cours</param>
+        /// <param name="startPos">Position de départ (à l'écran) de l'entité</param>
+        /// <param name="endPos">Position de fin (à l'écran) de l'entité</param>
+        public void StartMovement(GameTime time, Vector2 startPos, Vector2 endPos, double duration)
+        {
+            isMovementEnded = false;
+
+            this.duration = duration;
+            startingPosition = startPos;
+            endingPosition = endPos;
+            positionDiff = new Vector2(endingPosition.X - startingPosition.X, endingPosition.Y - startingPosition.Y);
+            startingTime = new TimeSpan(time.TotalGameTime.Ticks);
+        }
+
         public Vector2 UpdatePosition(GameTime time, EntityDirectionEnum direction)
         {
-            float deltaT = (float)time.TotalGameTime.Subtract(startingTime).Milliseconds / 1000;
+            if (IsMovementEnded) return endingPosition;
+
+            TimeSpan deltaT = time.TotalGameTime.Subtract(startingTime);
 
             //Si le temps est écoulé, pas besoin de faire les autres calculs inutiles
-            if (deltaT >= 1)
+            if (deltaT.TotalMilliseconds >= duration)
             {
                 isMovementEnded = true;
                 return endingPosition;
@@ -50,12 +70,12 @@ namespace Pacman.com.funtowiczmo.pacman.entity
             {
                 case EntityDirectionEnum.RIGH :
                 case EntityDirectionEnum.LEFT:
-                    pos.X += velocity * positionDiff.X * deltaT;
+                    pos.X += velocity * positionDiff.X * (float)(deltaT.TotalMilliseconds/duration);
                     break;
                     
                 case EntityDirectionEnum.TOP :
                 case EntityDirectionEnum.BOTTOM:
-                    pos.Y += velocity * deltaT * positionDiff.Y;
+                    pos.Y += velocity * positionDiff.Y * (float)(deltaT.TotalMilliseconds / duration);
                     break;
             }
 
@@ -89,20 +109,6 @@ namespace Pacman.com.funtowiczmo.pacman.entity
             {
                 base.Position = value;
             }
-        }
-
-        /// <summary>
-        /// Initialize un nouveau mouvement
-        /// </summary>
-        /// <param name="time">Objet permettant d'accéder à la référence temporelle du jeu en cours</param>
-        /// <param name="startPos">Position de départ (à l'écran) de l'entité</param>
-        /// <param name="endPos">Position de fin (à l'écran) de l'entité</param>
-        public void StartMovement(GameTime time, Vector2 startPos, Vector2 endPos){
-            isMovementEnded = false;
-            startingPosition = startPos;
-            endingPosition = endPos;
-            positionDiff = new Vector2(endingPosition.X - startingPosition.X, endingPosition.Y - startingPosition.X);
-            startingTime = time.TotalGameTime;
         }
 
         public void AbortMovement()
