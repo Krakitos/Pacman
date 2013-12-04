@@ -101,10 +101,8 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
         {
             get { return direction; }
             set { 
-                if(direction != value){
                     direction = value;
                     UpdateSkin();
-                }
             }
         }
 
