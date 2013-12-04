@@ -18,17 +18,19 @@ using Pacman.com.funtowiczmo.pacman.view;
 using Pacman.com.funtowiczmo.pacman.errors;
 using Pacman.com.funtowiczmo.pacman.entity.impl;
 using Pacman.com.funtowiczmo.pacman.view.impl;
+using Pacman.com.funtowiczmo.pacman.utils.signal;
+using Pacman.com.funtowiczmo.pacman.map.signal;
 
 namespace Pacman
 {
     /// <summary>
     /// Type principal pour votre jeu
     /// </summary>
-    public class Pacman : Microsoft.Xna.Framework.Game
+    public class Pacman : Microsoft.Xna.Framework.Game, IObserver<Signal>
     {
 
         //Constantes
-        public const int GOD_MODE_TIME = 100; //ms
+        public const int GOD_MODE_TIME = 5000; //ms
 
         //Variables de contexte
         bool firstFrame = true;
@@ -40,7 +42,7 @@ namespace Pacman
         //Pacman
         PacmanEntity pacman;
         List<EntityView> entitiesView;
-        GameTime godModeStartingTime;
+        int godModeElapsedTime;
 
         //Internal var
         GraphicsDeviceManager graphics;
@@ -65,7 +67,7 @@ namespace Pacman
         protected override void Initialize()
         {
             pacman = new PacmanEntity();
-
+            pacman.Subscribe(this);
             base.Initialize();
         }
 
@@ -79,8 +81,11 @@ namespace Pacman
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: utilisez this.Content pour charger votre contenu de jeu ici
+
+            //Initialisation du manager des textures
             AssetsManager instance = AssetsManager.GetInstance();
 
+            //Chargement des textures et ajout au manager
             instance.AddTexture(EntitySkinEnum.PACMAN_BAS_1, Content.Load<Texture2D>(EntitySkinEnum.PACMAN_BAS_1));
             instance.AddTexture(EntitySkinEnum.PACMAN_BAS_2, Content.Load<Texture2D>(EntitySkinEnum.PACMAN_BAS_2));
             instance.AddTexture(EntitySkinEnum.PACMAN_DROITE_1, Content.Load<Texture2D>(EntitySkinEnum.PACMAN_DROITE_1));
@@ -103,6 +108,7 @@ namespace Pacman
             instance.AddTexture(EntitySkinEnum.MUR, Content.Load<Texture2D>(EntitySkinEnum.MUR));
             instance.AddTexture(EntitySkinEnum.ROUTE, Content.Load<Texture2D>(EntitySkinEnum.ROUTE));
 
+            //Chargement des sons et ajout au manager 
             instance.AddSound(SoundEnum.INVINCIBLE, Content.Load<SoundEffect>(SoundEnum.INVINCIBLE));
             instance.AddSound(SoundEnum.MONSTER_EATEN, Content.Load<SoundEffect>(SoundEnum.MONSTER_EATEN));
             instance.AddSound(SoundEnum.PACMAN_EATEN, Content.Load<SoundEffect>(SoundEnum.PACMAN_EATEN));
@@ -110,7 +116,10 @@ namespace Pacman
             instance.AddSound(SoundEnum.PELLET_EAT_2, Content.Load<SoundEffect>(SoundEnum.PELLET_EAT_2));
             instance.AddSound(SoundEnum.SIREN, Content.Load<SoundEffect>(SoundEnum.SIREN));
 
+            //On charge la map
             LoadMap();
+
+            //On initialize les vues des entités (Pacman, fantomes)
             InitEntitiesViews();
         }
 
@@ -119,6 +128,7 @@ namespace Pacman
             try
             {
                 map = new Map("map1.txt");
+                map.Subscribe(this);
                 map.Load();
             }
             catch (MapNotFoundException mnfe)
@@ -163,11 +173,16 @@ namespace Pacman
                 ev.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             }
 
+            //On regarde ce qui pourrait éventuellement se trouver à la position actuelle de Pacman
+            map.CheckPosition(pacman.Position);
+
             //Check si le pacman est toujours invulnérable
             if (pacman.IsGodMode)
             {
-                if (gameTime.ElapsedGameTime.Subtract(godModeStartingTime.ElapsedGameTime).Milliseconds >= GOD_MODE_TIME)
-                {
+                godModeElapsedTime += gameTime.ElapsedGameTime.Milliseconds;
+                if (godModeElapsedTime >= GOD_MODE_TIME) //Sinon on regarde si la différence entre l'heure de démarrage
+                {                                                         //et la durée du GodMode est > 0, si oui, alors on doit lui retirer
+                    Console.WriteLine("Ending God Mode");
                     pacman.IsGodMode = false;
                 }
             }
@@ -210,7 +225,6 @@ namespace Pacman
                    //Si le dernier mouvement est terminé
                    if (pacman.IsMovementEnded)
                     {
-
                        //On demande à calculer le prochain mouvement que Pacman effectura
                         Vector2 next = pacman.GetNextMove();
 
@@ -218,7 +232,7 @@ namespace Pacman
                         if (map.IsNextMoveAuthorized(next)) 
                         {
                             //Initialisation du mouvement, on récupère les positions sur l'écran via la vue de la map qui s'occupe de la conversion
-                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next), 200);
+                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next), 150);
                             
                             //Définition du point d'arriver dans le reférentiel de la map
                             pacman.Position = next;
@@ -243,10 +257,10 @@ namespace Pacman
                        ev.DrawFrame(spriteBatch, destPoint);
                    }
                 }
-            //    else
-            //    {
-            //        //TODO : Gérer les fantomes
-            //    }
+                else
+                {
+                    //TODO : Gérer les fantomes
+                }
             }
 
             //Fin de la mise a jour
@@ -314,6 +328,40 @@ namespace Pacman
                     pacman.Direction = EntityDirectionEnum.TOP;
                     pacman.AbortMovement();
                 }
+            }
+        }
+
+        public void OnCompleted()
+        {
+            //Supprimer tous les écouteurs
+        }
+
+        public void OnError(Exception error)
+        {
+            Console.Error.WriteLine(error);
+        }
+
+        public void OnNext(Signal value)
+        {
+            Type type = value.GetType();
+
+            if (type == typeof(MapBeanEatenSignal))
+            {
+                MapBeanEatenSignal mbes = (MapBeanEatenSignal)value;
+                if (mbes.IsBigBean)
+                {
+                    pacman.IsGodMode = true;
+                    godModeElapsedTime = 0;
+                    Console.WriteLine("Entering God Mode");
+                }
+                else
+                {
+                    pacman.AddPoints(100);
+                }
+            }
+            else if (type == typeof(MapAllBeansEatenSignal))
+            {
+                Console.WriteLine("WIN");
             }
         }
     }

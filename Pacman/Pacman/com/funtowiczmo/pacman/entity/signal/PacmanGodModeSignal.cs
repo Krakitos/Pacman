@@ -11,7 +11,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.signal
 
         public PacmanGodModeSignal(IEntity entity, bool godMode) : base(entity)
         {
-            godMode = godMode;
+            this.godMode = godMode;
         }
 
         public bool IsGod
