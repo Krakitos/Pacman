@@ -60,7 +60,7 @@ namespace Pacman.com.funtowiczmo.pacman.view
                         Rectangle beanRect = new Rectangle(rect.X, rect.Y, rect.Width*6/10, rect.Height*6/10);
                         beanRect.X += (rect.Width - beanRect.Width) >> 1;
                         beanRect.Y += (rect.Height - beanRect.Height) >> 1;
-                        sprite.Draw(GetTextureFromID(-2), beanRect, Color.White);
+                        sprite.Draw(AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.GROS_BEAN), beanRect, Color.White);
                     }
                     
                     else if (data[i][j] == 1)
@@ -68,7 +68,7 @@ namespace Pacman.com.funtowiczmo.pacman.view
                         Rectangle beanRect = new Rectangle(rect.X, rect.Y, rect.Width >> 1, rect.Height >> 1);
                         beanRect.X += (rect.Width - beanRect.Width) >> 1;
                         beanRect.Y += (rect.Height - beanRect.Height) >> 1;
-                        sprite.Draw(GetTextureFromID(-1), beanRect, Color.White);
+                        sprite.Draw(AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.BEAN), beanRect, Color.White);
                     }
 
                     rect.X += rect.Width;
@@ -94,23 +94,12 @@ namespace Pacman.com.funtowiczmo.pacman.view
                 case 1:
                 case 2:
                 case 3:
+                case -1:
+                case -2:
                     {
                         t = AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.ROUTE);
                         break;
-                    }
-
-                case -1:
-                    {
-                        t = AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.BEAN);
-                        break;
-                    }
-                case -2:
-                    {
-                        t = AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.GROS_BEAN);
-                        break;
-                    }
-
-                    
+                    }                   
             }
 
             return t;

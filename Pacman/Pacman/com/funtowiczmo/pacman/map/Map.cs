@@ -88,6 +88,52 @@ namespace Pacman.com.funtowiczmo.pacman.map
             }
         }
 
+        /// <summary>
+        /// Regarde la value contenu à la position [x][y] dans la grille, et informe la vue de l'entité présente à cette position
+        /// </summary>
+        /// <param name="pos"></param>
+        public void CheckPosition(Vector2 pos)
+        {
+            int val = grid[(int)pos.Y][(int)pos.X];
+
+            switch (val)
+            {
+                case 1:
+                case 2:
+                    {
+                        bool bigBean = false;
+
+                        if (grid[(int)pos.Y][(int)pos.X] == 1)
+                        {
+                            --beanItemsCount;
+                        }
+                        else
+                        {
+                            bigBean = true;
+                            --bigBeanItemsCount;
+                        }
+
+                        grid[(int)pos.Y][(int)pos.X] *= -1;
+                        
+                        DispatchSignal(new MapBeanEatenSignal(this, pos,  bigBean));
+
+                        if (bigBeanItemsCount == 0 && beanItemsCount == 0)
+                        {
+                            DispatchSignal(new MapAllBeansEatenSignal(this));
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+        protected void DispatchSignal(MapSignal signal)
+        {
+            foreach(IObserver<MapSignal> o in observers){
+                o.OnNext(signal);
+            }
+        }
+
         public IDisposable Subscribe(IObserver<MapSignal> observer)
         {
             observers.Add(observer);
