@@ -233,7 +233,7 @@ namespace Pacman
                         if (map.IsNextMoveAuthorized(next)) 
                         {
                             //Initialisation du mouvement, on récupère les positions sur l'écran via la vue de la map qui s'occupe de la conversion
-                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next), 150);
+                            pacman.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(pacman.Position), mapView.ConvertPointToScreenPoint(next), 200);
                             
                             //Définition du point d'arriver dans le reférentiel de la map
                             pacman.Position = next;
@@ -261,7 +261,7 @@ namespace Pacman
                 else
                 {
                     //TODO : Gérer les fantomes
-                    ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(1, 2));
+                    ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(ev.RelatedEntity.Position));
                 }
             }
 
@@ -282,9 +282,16 @@ namespace Pacman
 
             //Vues pour les fantomes
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new RandomMovementPolicy())));
+            entitiesView[1].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
+
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_BLEU, new RandomMovementPolicy())));
+            entitiesView[2].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
+
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROSE, new RandomMovementPolicy())));
+            entitiesView[3].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
+
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ORANGE, new RandomMovementPolicy())));
+            entitiesView[4].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
             
         }
 
@@ -362,14 +369,14 @@ namespace Pacman
                     if (!pacman.IsGodMode)
                     {
                         pacman.IsGodMode = true;
-                        pacman.AddPoints(200);
+                        pacman.AddPoints(20);
                         NotifyGodModeChange();
                     }
                     godModeElapsedTime = 0;
                 }
                 else
                 {
-                    pacman.AddPoints(100);
+                    pacman.AddPoints(10);
                 }
             }
             else if (type == typeof(MapAllBeansEatenSignal))

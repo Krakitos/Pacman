@@ -171,7 +171,7 @@ namespace Pacman.com.funtowiczmo.pacman.map
         public Vector2 GetRandomInitialPacmanPosition()
         {
             int x, y;
-            Random rand = new Random();
+            Random rand = new Random(System.DateTime.Now.Millisecond);
 
             do
             {
@@ -179,6 +179,22 @@ namespace Pacman.com.funtowiczmo.pacman.map
                 x = rand.Next(1, grid[y].Length - 1);
 
             } while (grid[y][x] != 1);
+
+            return new Vector2(x, y);
+        }
+
+        public Vector2 GetRandomInitialGhostPosition()
+        {
+            int x, y;
+            Random rand = new Random(System.DateTime.Now.Millisecond);
+            do
+            {
+                y = rand.Next(1, grid.Length - 1);
+                x = rand.Next(1, grid[y].Length - 1);
+
+            } while (grid[y][x] != 3);
+
+            grid[y][x] = -3;
 
             return new Vector2(x, y);
         }

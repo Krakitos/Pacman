@@ -96,6 +96,7 @@ namespace Pacman.com.funtowiczmo.pacman.view
                 case 3:
                 case -1:
                 case -2:
+                case -3:
                     {
                         t = AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.ROUTE);
                         break;
