@@ -322,6 +322,7 @@ namespace Pacman
                     if (pacman.Direction != EntityDirectionEnum.BOTTOM)
                     {
                         pacman.Direction = EntityDirectionEnum.BOTTOM;
+                        pacman.AbortMovement();
                     }
                 }
             }
