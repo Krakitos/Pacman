@@ -101,7 +101,6 @@ namespace Pacman
             instance.AddTexture(EntitySkinEnum.PACMAN_MORT_3, Content.Load<Texture2D>(EntitySkinEnum.PACMAN_MORT_3));
             instance.AddTexture(EntitySkinEnum.GROS_BEAN, Content.Load<Texture2D>(EntitySkinEnum.GROS_BEAN));
             instance.AddTexture(EntitySkinEnum.BEAN, Content.Load<Texture2D>(EntitySkinEnum.BEAN));
-            instance.AddTexture(EntitySkinEnum.FANTOME_VERT, Content.Load<Texture2D>(EntitySkinEnum.FANTOME_VERT));
             instance.AddTexture(EntitySkinEnum.FANTOME_ROUGE, Content.Load<Texture2D>(EntitySkinEnum.FANTOME_ROUGE));
             instance.AddTexture(EntitySkinEnum.FANTOME_ROSE, Content.Load<Texture2D>(EntitySkinEnum.FANTOME_ROSE));
             instance.AddTexture(EntitySkinEnum.FANTOME_PEUR, Content.Load<Texture2D>(EntitySkinEnum.FANTOME_PEUR));
@@ -184,8 +183,8 @@ namespace Pacman
                 godModeElapsedTime += gameTime.ElapsedGameTime.Milliseconds;
                 if (godModeElapsedTime >= GOD_MODE_TIME) //Sinon on regarde si la différence entre l'heure de démarrage
                 {                                                         //et la durée du GodMode est > 0, si oui, alors on doit lui retirer
-                    Console.WriteLine("Ending God Mode");
                     pacman.IsGodMode = false;
+                    NotifyGodModeChange();
                 }
             }
 
@@ -281,8 +280,12 @@ namespace Pacman
             EntityView pv = new PacmanView(pacman);
             entitiesView.Add(pv);
 
-            EntityView ghost = new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new RandomMovementPolicy()));
-            entitiesView.Add(ghost);
+            //Vues pour les fantomes
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new RandomMovementPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_BLEU, new RandomMovementPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROSE, new RandomMovementPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ORANGE, new RandomMovementPolicy())));
+            
         }
 
         private void HandleKeyboardInput()
@@ -356,9 +359,13 @@ namespace Pacman
                 MapBeanEatenSignal mbes = (MapBeanEatenSignal)value;
                 if (mbes.IsBigBean)
                 {
-                    pacman.IsGodMode = true;
+                    if (!pacman.IsGodMode)
+                    {
+                        pacman.IsGodMode = true;
+                        pacman.AddPoints(200);
+                        NotifyGodModeChange();
+                    }
                     godModeElapsedTime = 0;
-                    Console.WriteLine("Entering God Mode");
                 }
                 else
                 {
@@ -368,6 +375,18 @@ namespace Pacman
             else if (type == typeof(MapAllBeansEatenSignal))
             {
                 Console.WriteLine("WIN");
+            }
+        }
+
+        private void NotifyGodModeChange()
+        {
+            foreach (EntityView ev in entitiesView)
+            {
+                if (ev.RelatedEntity.GetType() == typeof(GhostEntity))
+                {
+                    GhostEntity g = (GhostEntity)ev.RelatedEntity;
+                    g.AffraidMode = !g.AffraidMode;
+                }
             }
         }
     }

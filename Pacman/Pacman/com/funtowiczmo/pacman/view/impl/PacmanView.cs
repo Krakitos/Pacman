@@ -9,7 +9,7 @@ namespace Pacman.com.funtowiczmo.pacman.view.impl
 {
     public class PacmanView : EntityView
     {
-        public PacmanView(IEntity entity)
+        public PacmanView(AbstractEntity entity)
             : base(entity)
         {
 

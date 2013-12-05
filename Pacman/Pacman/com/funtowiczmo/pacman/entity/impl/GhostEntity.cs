@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Pacman.com.funtowiczmo.pacman.entity.ghost;
+using Pacman.com.funtowiczmo.pacman.entity.signal;
 using Pacman.com.funtowiczmo.pacman.map;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,16 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
         public override string[] GetDefaultSkins()
         {
             return skins[pacmanWantsToKillHim];
+        }
+
+        public bool AffraidMode
+        {
+            get{return pacmanWantsToKillHim;}
+            set 
+            { 
+                pacmanWantsToKillHim = value;
+                NotifyAll(new EntitySkinUpdated(this, skins[pacmanWantsToKillHim]));
+            }
         }
     }
 
