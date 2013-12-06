@@ -198,6 +198,38 @@ namespace Pacman.com.funtowiczmo.pacman.map
 
             return new Vector2(x, y);
         }
+
+        public bool IsIntersection(Vector2 pos)
+        {
+            return IsIntersection((int)pos.X, (int)pos.Y);
+        }
+
+        public bool IsIntersection(int x, int y)
+        {
+            int availableDirectionCount = 0;
+
+            if (x + 1 != 0 && x + 1 != 3 && x + 1 != -3)
+            {
+                availableDirectionCount++;
+            }
+
+            if (x - 1 != 0 && x - 1 != 3 && x - 1 != -3)
+            {
+                availableDirectionCount++;
+            }
+
+            if (y + 1 != 0 && y + 1 != 3 && y + 1 != -3)
+            {
+                availableDirectionCount++;
+            }
+
+            if (y - 1 != 0 && y - 1 != 3 && y - 1 != -3)
+            {
+                availableDirectionCount++;
+            }
+
+            return availableDirectionCount >= 2;
+        }
     }
 
 }
