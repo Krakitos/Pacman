@@ -45,6 +45,9 @@ namespace Pacman
         List<EntityView> entitiesView;
         int godModeElapsedTime;
 
+        //Informations 
+        InformationsView informationsView;
+
         //Internal var
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -54,7 +57,7 @@ namespace Pacman
             graphics = new GraphicsDeviceManager(this);
             graphics.IsFullScreen = false;
             graphics.PreferredBackBufferHeight = 600;
-            graphics.PreferredBackBufferWidth = 600;
+            graphics.PreferredBackBufferWidth = 700;
 
             Content.RootDirectory = "Content";
         }
@@ -109,16 +112,29 @@ namespace Pacman
             instance.AddTexture(EntitySkinEnum.MUR, Content.Load<Texture2D>(EntitySkinEnum.MUR));
             instance.AddTexture(EntitySkinEnum.ROUTE, Content.Load<Texture2D>(EntitySkinEnum.ROUTE));
 
-            //Chargement des sons et ajout au manager 
-            instance.AddSound(SoundEnum.INVINCIBLE, Content.Load<SoundEffect>(SoundEnum.INVINCIBLE));
-            instance.AddSound(SoundEnum.MONSTER_EATEN, Content.Load<SoundEffect>(SoundEnum.MONSTER_EATEN));
-            instance.AddSound(SoundEnum.PACMAN_EATEN, Content.Load<SoundEffect>(SoundEnum.PACMAN_EATEN));
-            instance.AddSound(SoundEnum.PELLET_EAT_1, Content.Load<SoundEffect>(SoundEnum.PELLET_EAT_1));
-            instance.AddSound(SoundEnum.PELLET_EAT_2, Content.Load<SoundEffect>(SoundEnum.PELLET_EAT_2));
-            instance.AddSound(SoundEnum.SIREN, Content.Load<SoundEffect>(SoundEnum.SIREN));
+            //Chargement des sons et ajout au manager
+            try
+            {
+                instance.AddSound(SoundEnum.INVINCIBLE, Content.Load<SoundEffect>(SoundEnum.INVINCIBLE));
+                instance.AddSound(SoundEnum.MONSTER_EATEN, Content.Load<SoundEffect>(SoundEnum.MONSTER_EATEN));
+                instance.AddSound(SoundEnum.PACMAN_EATEN, Content.Load<SoundEffect>(SoundEnum.PACMAN_EATEN));
+                instance.AddSound(SoundEnum.PELLET_EAT_1, Content.Load<SoundEffect>(SoundEnum.PELLET_EAT_1));
+                instance.AddSound(SoundEnum.PELLET_EAT_2, Content.Load<SoundEffect>(SoundEnum.PELLET_EAT_2));
+                instance.AddSound(SoundEnum.SIREN, Content.Load<SoundEffect>(SoundEnum.SIREN));
+            }
+            catch (NoAudioHardwareException e)
+            {
+                //TODO : Desactiver le SoundManager
+            }
+
+            //Chargement des polices
+            instance.AddFont("default", Content.Load<SpriteFont>("default"));
 
             //On charge la map
             LoadMap();
+
+            //On charge l'affiche des informations
+            informationsView = new InformationsView(GraphicsDevice, instance.GetFont("default"));
 
             //On initialize les vues des entités (Pacman, fantomes)
             InitEntitiesViews();
@@ -203,14 +219,19 @@ namespace Pacman
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Ajoutez votre code de dessin ici
+            //TODO: Ajoutez votre code de dessin ici
 
             //Début de la mise à jour de l'affichage
             spriteBatch.Begin();
 
             //Mise à jour de la map si necessaire
-            mapView.UpdateMap(spriteBatch);
+            mapView.UpdateMap(spriteBatch, 600, 600);
 
+            //On affiche les informations
+            Rectangle informationsPos = new Rectangle(mapView.Width, 0, GraphicsDevice.Viewport.Width - mapView.Width, GraphicsDevice.Viewport.Height);
+            informationsView.UpdateInformation(spriteBatch, pacman, informationsPos);
+
+            //Si c'est la première frame, on met en place tout ça
             if (firstFrame)
             {
                 firstFrame = false;
@@ -220,7 +241,7 @@ namespace Pacman
             //Mise à jour des entités visuelles
             foreach (EntityView ev in entitiesView)
             {
-
+                //Si l'entité est Pacman
                 if (ev.GetType() == typeof(PacmanView))
                 {
                    //Si le dernier mouvement est terminé
@@ -251,6 +272,11 @@ namespace Pacman
                     }
                    else //Sinon on met à jour le mouvement actuel
                    {
+                       if (ev.RelatedEntity.Position.Equals(pacman.Position))
+                       {
+                           Console.WriteLine("AIE AIE AIE !");
+                       }
+
                        //Récupération du prochain point calculé
                        Vector2 destPoint = pacman.UpdatePosition(gameTime, pacman.Direction);
 
@@ -258,7 +284,7 @@ namespace Pacman
                        ev.DrawFrame(spriteBatch, destPoint);
                    }
                 }
-                else
+                else //Si l'entité est un fantôme
                 {
                     //TODO : Gérer les fantomes
                     ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(ev.RelatedEntity.Position));
