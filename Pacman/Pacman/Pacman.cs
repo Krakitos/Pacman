@@ -287,7 +287,22 @@ namespace Pacman
                 else //Si l'entité est un fantôme
                 {
                     //TODO : Gérer les fantomes
-                    ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(ev.RelatedEntity.Position));
+                    GhostEntity mv = (GhostEntity)ev.RelatedEntity;
+
+                    if (mv.IsMovementEnded)
+                    {
+                        Vector2 pos = mv.ComputeNextMove(pacman.Position, map);
+                        mv.StartMovement(gameTime, mv.Position, pos, 200);
+
+                        mv.Position = pos;
+
+                        pos = mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM);
+                        ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(pos));
+                    }
+                    else
+                    {
+                        ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM)));
+                    }
                 }
             }
 
