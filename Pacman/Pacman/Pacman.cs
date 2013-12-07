@@ -112,7 +112,7 @@ namespace Pacman
             instance.AddTexture(EntitySkinEnum.MUR, Content.Load<Texture2D>(EntitySkinEnum.MUR));
             instance.AddTexture(EntitySkinEnum.ROUTE, Content.Load<Texture2D>(EntitySkinEnum.ROUTE));
 
-            //Chargement des sons et ajout au manager
+            //Chargement des sons et ajout au manager et vérification de la présence d'un composant audio disponible
             try
             {
                 instance.AddSound(SoundEnum.INVINCIBLE, Content.Load<SoundEffect>(SoundEnum.INVINCIBLE));
@@ -124,7 +124,7 @@ namespace Pacman
             }
             catch (NoAudioHardwareException e)
             {
-                //TODO : Desactiver le SoundManager
+                SoundManager.GetInstance().Available = false;
             }
 
             //Chargement des polices
@@ -298,9 +298,9 @@ namespace Pacman
 
                         pos = mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM);
                         ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(pos));
-                    }
-                    else
-                    {
+                }
+                else
+                {
                         ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM)));
                     }
                 }
