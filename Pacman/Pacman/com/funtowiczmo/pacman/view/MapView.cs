@@ -40,13 +40,14 @@ namespace Pacman.com.funtowiczmo.pacman.view
             set { needRefresh = value; }
         }
 
-        public void UpdateMap(SpriteBatch sprite)
+        public void UpdateMap(SpriteBatch sprite, float width, float height)
         {
 
             int[][] data = map.Grid;
             if (data.Length < 1) return;
 
-            unit = new Rectangle(0, 0, sprite.GraphicsDevice.Viewport.Width / data[0].Length, sprite.GraphicsDevice.Viewport.Height / data.Length);
+            //unit = new Rectangle(0, 0, sprite.GraphicsDevice.Viewport.Width / data[0].Length, sprite.GraphicsDevice.Viewport.Height / data.Length);
+            unit = new Rectangle(0, 0, (int)Math.Floor(width / data[0].Length), (int)Math.Floor(height / data.Length));
             Rectangle rect = new Rectangle(0, 0, unit.Width, unit.Height);
             
 
@@ -96,6 +97,7 @@ namespace Pacman.com.funtowiczmo.pacman.view
                 case 3:
                 case -1:
                 case -2:
+                case -3:
                     {
                         t = AssetsManager.GetInstance().GetTexture(entity.EntitySkinEnum.ROUTE);
                         break;
@@ -118,10 +120,7 @@ namespace Pacman.com.funtowiczmo.pacman.view
 
         public void OnNext(MapSignal value)
         {
-            if (value.GetType().Equals(typeof(MapBeanEatenSignal)))
-            {
-
-            }
+            
         }
 
         public bool IsNextMoveAuthorized(int x, int y){
@@ -147,6 +146,16 @@ namespace Pacman.com.funtowiczmo.pacman.view
         public Vector2 ConvertPointToScreenPoint(Vector2 p)
         {
             return ConvertPointToScreenPoint(p.X, p.Y);
+        }
+
+        public int Width
+        {
+            get { return unit.Width * map.Grid[0].Length; }
+        }
+
+        public int Height
+        {
+            get { return unit.Height * map.Grid.Length; }
         }
     }
 }
