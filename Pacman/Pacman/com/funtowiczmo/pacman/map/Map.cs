@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Pacman.com.funtowiczmo.pacman.entity;
 using Pacman.com.funtowiczmo.pacman.errors;
 using Pacman.com.funtowiczmo.pacman.map.signal;
 using System;
@@ -176,11 +177,54 @@ namespace Pacman.com.funtowiczmo.pacman.map
             }
         }
 
-        // <summary>
-        /// Indique si un mouvement vers le point p est autorisé
+        /// <summary>
+        /// Renvoie les directions possibles depuis un point pos
         /// </summary>
-        /// <param name="x">Position en x du prochain mouvement</param>
-        /// <param name="y">Position en y du prochain mouvement</param>
+        /// <param name="pos">La position à partir de laquelle on souhaite déterminer les chemins possibles</param>
+        /// <returns>Une liste d'EntityDirectionEnum</returns>
+        public List<EntityDirectionEnum> GetAvailableDirections(Vector2 pos)
+        {
+            return GetAvailableDirections((int)pos.X, (int)pos.Y);
+        }
+
+        /// <summary>
+        /// Renvoie les directions possibles depuis un point (x,y)
+        /// </summary>
+        /// <param name="x">Coordonées en x du point à partir duquel on souhaite déterminer les chemins</param>
+        /// <param name="y">Coordonnées en y du point à partir duquel on souhaite déterminer les chemins</param>
+        /// <returns>Une liste d'EntityDirectionEnum</returns>
+        public List<EntityDirectionEnum> GetAvailableDirections(int x, int y)
+        {
+            List<EntityDirectionEnum> directionsAvailable = new List<EntityDirectionEnum>();
+
+            if (IsNextMoveAuthorized(x + 1, y))
+            {
+                directionsAvailable.Add(EntityDirectionEnum.RIGHT);
+            }
+
+            if (IsNextMoveAuthorized(x - 1, y))
+            {
+                directionsAvailable.Add(EntityDirectionEnum.LEFT);
+            }
+
+            if (IsNextMoveAuthorized(x, y + 1))
+            {
+                directionsAvailable.Add(EntityDirectionEnum.BOTTOM);
+            }
+
+            if (IsNextMoveAuthorized(x, y - 1))
+            {
+                directionsAvailable.Add(EntityDirectionEnum.TOP);
+            }
+
+            return directionsAvailable;
+        }
+
+        /// <summary>
+        /// Indique si un mouvement vers les coordonnées (x,y) est autorisé
+        /// </summary>
+        /// <param name="x">Composante x du vecteur position</param>
+        /// <param name="y">Composante y du vecteur position</param>
         /// <returns>True si le mouvement est possible, false sinon</returns>
         public bool IsNextMoveAuthorized(int x, int y)
         {
@@ -189,7 +233,7 @@ namespace Pacman.com.funtowiczmo.pacman.map
 
         /// <summary>
         /// Indique si un mouvement vers le point p est autorisé
-        /// </summary>
+        /// </summary> 
         /// <param name="p">Point 2D vers lequel on souhaite aller</param>
         /// <returns>True si le mouvement est possible, false sinon</returns>
         public bool IsNextMoveAuthorized(Vector2 p)
