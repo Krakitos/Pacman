@@ -9,7 +9,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity
     {
         STATIC=1,
         LEFT=2,
-        RIGH=3,
+        RIGHT=3,
         TOP=4, 
         BOTTOM=5
     }

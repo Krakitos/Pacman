@@ -16,6 +16,9 @@ namespace Pacman.com.funtowiczmo.pacman.entity
         //Vitesse de l'entité (exprimé en case / seconde)
         protected float velocity;
 
+        //Direction de l'entité
+        protected EntityDirectionEnum direction;
+
         //Informations sur le point à l'écran
         private Vector2 startingPosition;
         private Vector2 endingPosition;
@@ -68,7 +71,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity
 
             switch (direction)
             {
-                case EntityDirectionEnum.RIGH :
+                case EntityDirectionEnum.RIGHT :
                 case EntityDirectionEnum.LEFT:
                     pos.X += velocity * positionDiff.X * (float)(deltaT.TotalMilliseconds/duration);
                     break;
@@ -80,6 +83,20 @@ namespace Pacman.com.funtowiczmo.pacman.entity
             }
 
             return pos;
+        }
+
+        /// <summary>
+        /// Défini la direction dans laquelle se dirige Pacman. Cette propriété permet, entre autres, de définir le skin utilisé pour représenté Pacman suivant
+        /// sa direction
+        /// </summary>
+        public EntityDirectionEnum Direction
+        {
+            get { return direction; }
+            set
+            {
+                direction = value;
+                OnDirectionChanged();
+            }
         }
 
         /// <summary>
@@ -107,6 +124,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity
             }
             set
             {
+                OnPositionChange(value);
                 base.Position = value;
             }
         }
@@ -114,6 +132,34 @@ namespace Pacman.com.funtowiczmo.pacman.entity
         public void AbortMovement()
         {
             isMovementEnded = true;
+        }
+
+
+        protected virtual void OnDirectionChanged()
+        {
+
+        }
+
+        protected virtual void OnPositionChange(Vector2 newPos)
+        {
+            Vector2 diff = new Vector2(Position.X - newPos.X, Position.Y - newPos.Y);
+            if (diff.X == 1 && direction != EntityDirectionEnum.LEFT)
+            {
+                Direction = EntityDirectionEnum.LEFT;
+            }
+            else if (diff.X == -1 && direction != EntityDirectionEnum.RIGHT)
+            {
+                Direction = EntityDirectionEnum.RIGHT;
+            }
+            else if (diff.Y == 1 && direction != EntityDirectionEnum.TOP)
+            {
+                Direction = EntityDirectionEnum.TOP;
+            }
+            else if (diff.Y == -1 && direction != EntityDirectionEnum.BOTTOM)
+            {
+                Direction = EntityDirectionEnum.BOTTOM;
+
+            }
         }
     }
 }

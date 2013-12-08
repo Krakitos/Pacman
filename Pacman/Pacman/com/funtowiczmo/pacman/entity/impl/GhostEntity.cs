@@ -25,7 +25,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
 
         public Vector2 ComputeNextMove(Vector2 pacmanPos, Map map)
         {
-            return movementComputer.GetNextMove(this, pacmanPos, map);
+            return movementComputer.GetDestination(this, pacmanPos, map);
 		}
 
         public override string[] GetDefaultSkins()

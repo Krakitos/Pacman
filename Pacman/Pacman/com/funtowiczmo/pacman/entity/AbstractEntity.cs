@@ -10,7 +10,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity
 {
     public abstract class AbstractEntity : IEntity
     {
-        private int ID_GENERATOR = 0;
+        private static int ID_GENERATOR = 0;
         private int id;
         private List<IObserver<EntitySignal>> observers; 
 

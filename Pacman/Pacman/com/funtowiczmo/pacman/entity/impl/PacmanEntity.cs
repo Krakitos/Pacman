@@ -9,7 +9,6 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
 
         private int points;
         private bool isGodMode;
-        private EntityDirectionEnum direction;
         private Dictionary<EntityDirectionEnum, string[]> assets;
 
         /// <summary>
@@ -19,14 +18,14 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
         public PacmanEntity():base()
         {
             //On met Pacman par défaut orienté vers la droite
-            direction = EntityDirectionEnum.RIGH;
+            direction = EntityDirectionEnum.RIGHT;
 
             //Liste des assets en fonction des directions prises par Pacman
             assets = new Dictionary<EntityDirectionEnum, string[]>();
             assets.Add(EntityDirectionEnum.TOP, new string[] { EntitySkinEnum.PACMAN_HAUT_1, EntitySkinEnum.PACMAN_HAUT_2 });
             assets.Add(EntityDirectionEnum.BOTTOM, new string[] { EntitySkinEnum.PACMAN_BAS_1, EntitySkinEnum.PACMAN_BAS_2 });
             assets.Add(EntityDirectionEnum.LEFT, new string[] { EntitySkinEnum.PACMAN_GAUCHE_1, EntitySkinEnum.PACMAN_GAUCHE_2 });
-            assets.Add(EntityDirectionEnum.RIGH, new string[] { EntitySkinEnum.PACMAN_DROITE_1, EntitySkinEnum.PACMAN_DROITE_2 });
+            assets.Add(EntityDirectionEnum.RIGHT, new string[] { EntitySkinEnum.PACMAN_DROITE_1, EntitySkinEnum.PACMAN_DROITE_2 });
 
             //Par défaut Pacman est vulnérable
             isGodMode = false;
@@ -51,7 +50,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
             assets.Add(EntityDirectionEnum.TOP, new string[] { EntitySkinEnum.PACMAN_HAUT_1, EntitySkinEnum.PACMAN_HAUT_2 });
             assets.Add(EntityDirectionEnum.BOTTOM, new string[] { EntitySkinEnum.PACMAN_BAS_1, EntitySkinEnum.PACMAN_BAS_2 });
             assets.Add(EntityDirectionEnum.LEFT, new string[] { EntitySkinEnum.PACMAN_GAUCHE_1, EntitySkinEnum.PACMAN_GAUCHE_2 });
-            assets.Add(EntityDirectionEnum.RIGH, new string[] { EntitySkinEnum.PACMAN_DROITE_1, EntitySkinEnum.PACMAN_DROITE_2 });
+            assets.Add(EntityDirectionEnum.RIGHT, new string[] { EntitySkinEnum.PACMAN_DROITE_1, EntitySkinEnum.PACMAN_DROITE_2 });
 
             //Par défaut Pacman est vulnérable
             isGodMode = false;
@@ -93,19 +92,6 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
             }
         }
 
-        /// <summary>
-        /// Défini la direction dans laquelle se dirige Pacman. Cette propriété permet, entre autres, de définir le skin utilisé pour représenté Pacman suivant
-        /// sa direction
-        /// </summary>
-        public EntityDirectionEnum Direction
-        {
-            get { return direction; }
-            set { 
-                    direction = value;
-                    UpdateSkin();
-            }
-        }
-
         public Vector2 GetNextMove()
         {
             Vector2 next = new Vector2(position.X, position.Y);
@@ -126,7 +112,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
                         next.X--;
                         break;
                     }
-                case EntityDirectionEnum.RIGH:
+                case EntityDirectionEnum.RIGHT:
                     {
                         next.X++;
                         break;
@@ -144,6 +130,12 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
         private void UpdateSkin()
         {
             NotifyAll(new EntitySkinUpdated(this, assets[direction]));
+        }
+
+        protected override void OnDirectionChanged()
+        {
+            base.OnDirectionChanged();
+            UpdateSkin();
         }
     }
 
