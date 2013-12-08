@@ -8,9 +8,10 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
 {
     public class ShortestPathPolicy : IMovementPolicy
     {
-        public Vector2 GetNextMove(AbstractEntity entity, Vector2 pacmanPos, map.Map map)
+        public Vector2 GetDestination(MovableEntity entity, Vector2 pacmanPos, map.Map map)
         {
-            throw new NotImplementedException();
+            //Le fantome rouge cherche toujours à aller vers Pacman
+            return pacmanPos;
         }
     }
 }
