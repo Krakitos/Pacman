@@ -37,6 +37,7 @@ namespace Pacman
         bool firstFrame = true;
 
         //Map
+        Pathfinder pathfinder;
         Map map;
         MapView mapView;
 
@@ -122,7 +123,7 @@ namespace Pacman
                 instance.AddSound(SoundEnum.PELLET_EAT_2, Content.Load<SoundEffect>(SoundEnum.PELLET_EAT_2));
                 instance.AddSound(SoundEnum.SIREN, Content.Load<SoundEffect>(SoundEnum.SIREN));
             }
-            catch (NoAudioHardwareException e)
+            catch (NoAudioHardwareException)
             {
                 SoundManager.GetInstance().Available = false;
             }
@@ -132,6 +133,9 @@ namespace Pacman
 
             //On charge la map
             LoadMap();
+
+            //Initialisation du pathfinder
+            pathfinder = new Pathfinder(map);
 
             //On charge l'affiche des informations
             informationsView = new InformationsView(GraphicsDevice, instance.GetFont("default"));
@@ -272,10 +276,10 @@ namespace Pacman
                     }
                    else //Sinon on met à jour le mouvement actuel
                    {
-                       if (ev.RelatedEntity.Position.Equals(pacman.Position))
-                       {
-                           Console.WriteLine("AIE AIE AIE !");
-                       }
+                       //if (ev.RelatedEntity.Position.Equals(pacman.Position))
+                       //{
+                       //    Console.WriteLine("AIE AIE AIE !");
+                       //}
 
                        //Récupération du prochain point calculé
                        Vector2 destPoint = pacman.UpdatePosition(gameTime, pacman.Direction);
@@ -291,16 +295,18 @@ namespace Pacman
 
                     if (mv.IsMovementEnded)
                     {
-                        Vector2 pos = mv.ComputeNextMove(pacman.Position, map);
-                        mv.StartMovement(gameTime, mv.Position, pos, 200);
+                        Vector2 targetPoint = mv.ComputeNextMove(pacman.Position, map);
+                        Vector2 next = pathfinder.GetPath(mv.Position, targetPoint);
 
-                        mv.Position = pos;
+                        mv.StartMovement(gameTime, mv.Position, next, 200);
 
-                        pos = mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM);
-                        ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(pos));
-                }
-                else
-                {
+                        mv.Position = next;
+
+                        next = mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM);
+                        ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(next));
+                    }
+                    else
+                    {
                         ev.DrawFrame(spriteBatch, mapView.ConvertPointToScreenPoint(mv.UpdatePosition(gameTime, EntityDirectionEnum.BOTTOM)));
                     }
                 }
@@ -322,7 +328,7 @@ namespace Pacman
             entitiesView.Add(pv);
 
             //Vues pour les fantomes
-            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new RandomMovementPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new ShortestPathPolicy())));
             entitiesView[1].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_BLEU, new RandomMovementPolicy())));
@@ -350,9 +356,9 @@ namespace Pacman
                         if (state.IsKeyDown(Keys.Right))
                         {
                             //Handle Right key down
-                            if (pacman.Direction != EntityDirectionEnum.RIGH)
+                            if (pacman.Direction != EntityDirectionEnum.RIGHT)
                             {
-                                pacman.Direction = EntityDirectionEnum.RIGH;
+                                pacman.Direction = EntityDirectionEnum.RIGHT;
                                 pacman.AbortMovement();
                             }
                         }
