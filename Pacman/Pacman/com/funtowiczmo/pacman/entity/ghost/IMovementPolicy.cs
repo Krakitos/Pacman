@@ -16,6 +16,6 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         /// <param name="pacmanPos">Position de Pacman</param>
         /// <param name="map">Référence vers la map</param>
         /// <returns>0 = droite, 1 = gauche, 2 = haut, 3 = bas</returns>
-        Vector2 GetNextMove(AbstractEntity entity, Vector2 pacmanPos, Map map);
+        Vector2 GetDestination(MovableEntity entity, Vector2 pacmanPos, Map map);
     }
 }
