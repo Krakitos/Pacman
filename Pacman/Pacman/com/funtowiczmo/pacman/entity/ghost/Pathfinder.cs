@@ -51,8 +51,9 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
 
             SearchNode newOpenListNode;
 
+            //On essaye de trouver le meilleur point pour le prochain mouvement
             bool foundNewNode = SelectNodeToVisit(out newOpenListNode);
-            if (foundNewNode)
+            if (foundNewNode) //Si on l'a trouvé
             {
                 Point currentPos = newOpenListNode.position;
                 foreach (Point point in GetNeighbors(currentPos))
