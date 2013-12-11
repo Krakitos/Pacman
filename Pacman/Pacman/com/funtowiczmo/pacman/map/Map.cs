@@ -331,6 +331,8 @@ namespace Pacman.com.funtowiczmo.pacman.map
         /// <returns>Renvoie true si les deux entitées peuvent se voir, false sinon</returns>
         public bool CanSee(Vector2 first, Vector2 second)
         {
+
+            //On cherche si sur la même ligne / colonne un obstacle est préset. Si c'est le cas, les deux positions sont cachées l'une de l'autre. Sinon elles sont visibles
             bool res = true;
 
             int y = (int)first.Y;
@@ -339,8 +341,10 @@ namespace Pacman.com.funtowiczmo.pacman.map
             int x = (int)first.X;
             int x_inc = second.X - first.X < 0 ? -1 : 1;
 
+            //On parcourt toute la ligne
             while (y < second.Y && res)
             {
+                // 0 = mur, 3 | -3 = zone de respawn des fantomes 
                 if (grid[y][x] == 0 || grid[y][x] == 3 ||grid[y][x] == -3)
                 {
                     res = false;
@@ -351,10 +355,13 @@ namespace Pacman.com.funtowiczmo.pacman.map
                 }
             }
 
+            //On reset le Y pour rester sur la même ligne
             y = (int)first.Y;
 
+            //On parcourt toute la colonne;
             while (x < second.X && res)
             {
+                // 0 = mur, 3 | -3 = zone de respawn des fantomes 
                 if (grid[y][x] == 0 || grid[y][x] == 3 || grid[y][x] == -3)
                 {
                     res = false;
@@ -364,6 +371,27 @@ namespace Pacman.com.funtowiczmo.pacman.map
             }
 
             return res;
+        }
+
+        /// <summary>
+        /// Indique si la position est dans la zone de respawn des fantômes
+        /// </summary>
+        /// <param name="pos">Position de l'entité</param>
+        /// <returns>True si cette position est dans la zone de respawn des fantômes, false sinon</returns>
+        public bool IsInTheCradle(Vector2 pos)
+        {
+            return IsInTheCradle((int)pos.X, (int)pos.Y);
+        }
+
+        /// <summary>
+        /// Indique si la position est dans la zone de respawn des fantômes
+        /// </summary>
+        /// <param name="x">Composante x de la position</param>
+        /// <param name="y">Composante y de la position</param>
+        /// <returns>True si cette position est dans la zone de respawn des fantômes, false sinon</returns>
+        public bool IsInTheCradle(int x, int y)
+        {
+            return grid[y][x] == 3 || grid[y][x] == -3;
         }
     }
 
