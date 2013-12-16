@@ -105,17 +105,17 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="com\funtowiczmo\pacman\entity\AbstractEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\EntityDirectionEnum.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\EntitySkinEnum.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\ghost\IMovementPolicy.cs" />
-    <Compile Include="com\funtowiczmo\pacman\entity\ghost\RandomMovementPolicy.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\Pathfinder.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\ghost\ShortestPathPolicy.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\IEntity.cs" />
-    <Compile Include="com\funtowiczmo\pacman\entity\impl\BeanEntity.cs" />
-    <Compile Include="com\funtowiczmo\pacman\entity\impl\BigBeanEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\impl\GhostEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\impl\PacmanEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\MovableEntity.cs" />
@@ -138,6 +138,7 @@
     <Compile Include="com\funtowiczmo\pacman\view\AnimatedTexture.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\EntityView.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\impl\PacmanView.cs" />
+    <Compile Include="com\funtowiczmo\pacman\view\InformationsView.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\MapView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pacman.cs" />
