@@ -44,12 +44,13 @@ namespace Pacman.com.funtowiczmo.pacman.entity
         /// <param name="endPos">Position de fin (à l'écran) de l'entité</param>
         public void StartMovement(GameTime time, Vector2 startPos, Vector2 endPos, double duration)
         {
-            isMovementEnded = false;
-
             this.duration = duration;
             startingPosition = startPos;
             endingPosition = endPos;
+
             positionDiff = new Vector2(endingPosition.X - startingPosition.X, endingPosition.Y - startingPosition.Y);
+
+            isMovementEnded = positionDiff.X == 0 && positionDiff.Y == 0;
             startingTime = new TimeSpan(time.TotalGameTime.Ticks);
         }
 

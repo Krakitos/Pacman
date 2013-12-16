@@ -11,6 +11,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         public Vector2 GetDestination(MovableEntity entity, Vector2 pacmanPos, map.Map map)
         {
             //Le fantome rouge cherche toujours à aller vers Pacman
+            //TEST return entity.Position;
             return pacmanPos;
         }
     }
