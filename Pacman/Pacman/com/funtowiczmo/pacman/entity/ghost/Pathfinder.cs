@@ -65,6 +65,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
                         paths[point] = newOpenListNode.position;
                     }
                 }
+
                 if (currentPos == pTo)
                 {
                     //Finish
@@ -75,12 +76,6 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
                 openedList.Remove(newOpenListNode);
                 closedList.Add(newOpenListNode);
             }
-            else
-            {
-               //TODO : Throw exception no path
-                Console.WriteLine("Impossible de trouver le chemin");
-            }
-
             return from;
         }
 
@@ -105,7 +100,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         /// <summary>
         /// Cherche le prochain point à visiter dans la liste ouverte
         /// </summary>
-        /// <param name="result">Le point qui devrai être visité</param>
+        /// <param name="result">Le point qui devra être visité</param>
         /// <returns>Renvoie true si un point à été trouvé, false sinon</returns>
         private bool SelectNodeToVisit(out SearchNode result)
         {
@@ -148,15 +143,14 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         /// <returns>True si le point est trouvé, false sinon</returns>
         private bool InList(List<SearchNode> list, Point point)
         {
-            bool inList = false;
             foreach (SearchNode node in list)
             {
                 if (node.position == point)
                 {
-                    inList = true;
+                    return true;
                 }
             }
-            return inList;
+            return false;
         }
 
         /// <summary>
@@ -184,7 +178,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         /// <returns>Distance entre les deux points</returns>
         private int ComputeDistance(Point from, Point to)
         {
-            return (to.X - from.X)  + (to.Y + from.Y);
+            return (to.X - from.X) + (to.Y - from.Y);
         }
 
 
