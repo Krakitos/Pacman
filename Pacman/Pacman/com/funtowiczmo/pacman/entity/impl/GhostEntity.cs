@@ -23,9 +23,9 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
             pacmanWantsToKillHim = false;
         }
 
-        public Vector2 ComputeNextMove(Vector2 pacmanPos, Map map)
+        public Vector2 ComputeNextMove(PacmanEntity pacman, Map map)
         {
-            return movementComputer.GetDestination(this, pacmanPos, map);
+            return movementComputer.GetDestination(this, pacman, map);
 		}
 
         public override string[] GetDefaultSkins()
