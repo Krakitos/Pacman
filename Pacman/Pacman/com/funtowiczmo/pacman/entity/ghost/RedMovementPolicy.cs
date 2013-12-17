@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Pacman.com.funtowiczmo.pacman.entity.ghost
 {
-    public class ShortestPathPolicy : IMovementPolicy
+    public class RedMovementPolicy : IMovementPolicy
     {
         private IMovementPolicy runAway = new RunAwayMovementPolicy();
 

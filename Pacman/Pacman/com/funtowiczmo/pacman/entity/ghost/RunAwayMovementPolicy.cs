@@ -14,14 +14,27 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
             //On récupère les directions disponibles depuis notre position
             List<EntityDirectionEnum> availableDirections = map.GetAvailableDirections(entity.Position);
 
-            //On retire la direction de Pacman pour ne pas aller vers lui
-            availableDirections.Remove(pacman.Direction);
+            Vector2 nextPos;
+            EntityDirectionEnum nextDir;
 
-            //On récupère une direction au hasard
-            EntityDirectionEnum nextDir = availableDirections.ElementAt(MathUtils.Random(0, availableDirections.Count));
+            if (!availableDirections.Contains(entity.Direction))
+            {
+                //On récupère une direction au hasard dans celle dispo en évitant celle de Pacman si possible
+                if (availableDirections.Count > 1)
+                {
+                    availableDirections.Remove(pacman.Direction);
+                }
+
+                nextDir = availableDirections.ElementAt(MathUtils.Random(0, availableDirections.Count)); 
+            }
+            else
+            {
+                nextDir = entity.Direction;
+            }
+           
 
             //On calcule le prochain point à partir de la position actuelle et de la direction
-            Vector2 nextPos = MapUtils.GetNextPointWithDirection(entity.Position, nextDir);
+            nextPos = MapUtils.GetNextPointWithDirection(entity.Position, nextDir);
 
             //On renvoie la position
             return nextPos;

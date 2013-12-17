@@ -41,6 +41,26 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
             }
             else
             {
+                //On retire le retour en arrière pour eviter les effet de va et viens, si une autre direction est possible (directions.Count > 1)
+                if (directions.Count > 1)
+                {
+                    switch (entity.Direction)
+                    {
+                        case EntityDirectionEnum.BOTTOM:
+                            directions.Remove(EntityDirectionEnum.TOP);
+                            break;
+                        case EntityDirectionEnum.TOP:
+                            directions.Remove(EntityDirectionEnum.BOTTOM);
+                            break;
+                        case EntityDirectionEnum.LEFT:
+                            directions.Remove(EntityDirectionEnum.RIGHT);
+                            break;
+                        case EntityDirectionEnum.RIGHT:
+                            directions.Remove(EntityDirectionEnum.LEFT);
+                            break;
+                    }
+                }
+
                 nextDir = directions.ElementAt(MathUtils.Random(0, directions.Count));
             }
 
