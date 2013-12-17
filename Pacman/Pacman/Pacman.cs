@@ -32,10 +32,10 @@ namespace Pacman
 
         //Constantes
         public const int GOD_MODE_TIME = 5000; //ms
-        public const int MOVEMENTS_DURATION = 200; //ms
+        public const int MOVEMENTS_DURATION = 300; //ms
 
         //Variables de contexte
-        GameState currentState = GameState.MENU;
+        GameState currentState = GameState.WAITING_INTERACTION;
 
         //Map
         Pathfinder pathfinder;
@@ -47,8 +47,10 @@ namespace Pacman
         List<EntityView> entitiesView;
         int godModeElapsedTime;
 
-        //Informations 
+        //Différentes vues
         InformationsView informationsView;
+        WinView winView;
+        LooseView looseView;
 
         //Internal var
         GraphicsDeviceManager graphics;
@@ -113,6 +115,7 @@ namespace Pacman
             instance.AddTexture(EntitySkinEnum.FANTOME_BLEU, Content.Load<Texture2D>(EntitySkinEnum.FANTOME_BLEU));
             instance.AddTexture(EntitySkinEnum.MUR, Content.Load<Texture2D>(EntitySkinEnum.MUR));
             instance.AddTexture(EntitySkinEnum.ROUTE, Content.Load<Texture2D>(EntitySkinEnum.ROUTE));
+            instance.AddTexture(EntitySkinEnum.HEART, Content.Load<Texture2D>(EntitySkinEnum.HEART));
 
             //Chargement des sons et ajout au manager et vérification de la présence d'un composant audio disponible
             try
@@ -138,8 +141,8 @@ namespace Pacman
             //Initialisation du pathfinder
             pathfinder = new Pathfinder(map);
 
-            //On charge l'affiche des informations
-            informationsView = new InformationsView(GraphicsDevice, instance.GetFont("default"));
+            //Initialise les vues
+            InitViews();
 
             //On initialize les vues des entités (Pacman, fantomes)
             InitEntitiesViews();
@@ -212,38 +215,66 @@ namespace Pacman
 
 
             //Mise a jour des entites (Après un éventuel changement de direction via les Input)
-            foreach (EntityView ev in entitiesView)
-            {
-                MovableEntity mv = (MovableEntity)ev.RelatedEntity;
-
-                //Si le mouvement est terminé
-                if (mv.IsMovementEnded)
+            if (currentState == GameState.PLAYING) {
+                foreach (EntityView ev in entitiesView)
                 {
-                    Vector2 next;
+                    MovableEntity mv = (MovableEntity)ev.RelatedEntity;
 
-                    //On récupère le prochain mouvement pour l'entité
-                    if (ev.RelatedEntity is PacmanEntity)
+                    //Si le mouvement est terminé
+                    if (mv.IsMovementEnded)
                     {
-                        //On regarde ce qui pourrait éventuellement se trouver à la position actuelle de Pacman
-                        map.CheckPosition(pacman.Position);
+                        Vector2 next;
 
-                        next = pacman.GetNextMove();
-                    }
-                    else
-                    {
-                        GhostEntity ge = (GhostEntity)ev.RelatedEntity;
-                        Vector2 goal = ge.ComputeNextMove(pacman, map);
-                        next = pathfinder.GetNextPointTo(ge.Position, goal);
-                    }
+                        //On récupère le prochain mouvement pour l'entité
+                        if (ev.RelatedEntity is PacmanEntity)
+                        {
+                            //On regarde ce qui pourrait éventuellement se trouver à la position actuelle de Pacman
+                            map.CheckPosition(pacman.Position);
 
-                    //On demande à la map de vérifier que ce mouvement est possible
-                    if (map.IsNextMoveAuthorized(next))
-                    {
-                        //Initialisation du mouvement, on récupère les positions sur l'écran via la vue de la map qui s'occupe de la conversion
-                        mv.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(mv.Position), mapView.ConvertPointToScreenPoint(next), MOVEMENTS_DURATION);
+                            next = pacman.GetNextMove();
+                        }
+                        else
+                        {
+                            GhostEntity ge = (GhostEntity)ev.RelatedEntity;
 
-                        //Définition du point d'arriver dans le reférentiel de la map
-                        mv.Position = next;
+                            if (ge.Position == pacman.Position)
+                            {
+                                //Si Pacman est invulnérable et qu'il mange un fantome, on lui donne des points !
+                                if (pacman.IsGodMode)
+                                {
+                                    pacman.AddPoints(100);
+                                }
+                                else
+                                {
+                                    //On retire une vie à Pacman
+                                    pacman.RemoveALife();
+
+                                    //S'il n'en a plus, on affiche game over
+                                    if (pacman.RemainingLife == 0)
+                                    {
+                                        currentState = GameState.LOOSE;
+                                    }
+                                    else //Sinon on reset
+                                    {
+                                        currentState = GameState.WAITING_INTERACTION;
+                                        InitEntitiesPosition();
+                                    }
+                                }
+                            }
+
+                            Vector2 goal = ge.ComputeNextMove(pacman, map);
+                            next = pathfinder.GetNextPointTo(ge.Position, goal);
+                        }
+
+                        //On demande à la map de vérifier que ce mouvement est possible
+                        if (map.IsNextMoveAuthorized(next))
+                        {
+                            //Initialisation du mouvement, on récupère les positions sur l'écran via la vue de la map qui s'occupe de la conversion
+                            mv.StartMovement(gameTime, mapView.ConvertPointToScreenPoint(mv.Position), mapView.ConvertPointToScreenPoint(next), MOVEMENTS_DURATION);
+
+                            //Définition du point d'arriver dans le reférentiel de la map
+                            mv.Position = next;
+                        }
                     }
                 }
             }
@@ -264,26 +295,35 @@ namespace Pacman
             //Début de la mise à jour de l'affichage
             spriteBatch.Begin();
 
-            //Mise à jour de la map si necessaire
-            mapView.UpdateMap(spriteBatch, 600, 600);
-
-            //On affiche les informations
-            Rectangle informationsPos = new Rectangle(mapView.Width, 0, GraphicsDevice.Viewport.Width - mapView.Width, GraphicsDevice.Viewport.Height);
-            informationsView.UpdateInformation(spriteBatch, pacman, informationsPos);
-
-            //Mise à jour des entités visuelles
-            foreach (EntityView ev in entitiesView)
+            if (currentState == GameState.PLAYING || currentState == GameState.WAITING_INTERACTION)
             {
-                if (ev.RelatedEntity is MovableEntity)
+                //Mise à jour de la map si necessaire
+                mapView.Draw(spriteBatch, 600, 600);
+
+                //On affiche les informations
+                Rectangle informationsPos = new Rectangle(mapView.Width, 0, GraphicsDevice.Viewport.Width - mapView.Width, GraphicsDevice.Viewport.Height);
+                informationsView.Draw(spriteBatch, pacman, informationsPos);
+
+                //Mise à jour des entités visuelles
+                foreach (EntityView ev in entitiesView)
                 {
-                    MovableEntity me = (MovableEntity)ev.RelatedEntity;
+                    if (ev.RelatedEntity is MovableEntity)
+                    {
+                        MovableEntity me = (MovableEntity)ev.RelatedEntity;
 
-                    //Récupération du prochain point calculé
-                    Vector2 destPoint = me.UpdatePosition(gameTime, me.Direction);
+                        //Récupération du prochain point calculé si la partie est lancé, sinon l'affichage est statique
+                        Vector2 destPoint = currentState == GameState.PLAYING ? me.UpdatePosition(gameTime, me.Direction) : me.Position;
 
-                    //Affichage
-                    ev.DrawFrame(spriteBatch, destPoint);
+                        //Affichage
+                        ev.DrawFrame(spriteBatch, destPoint);
+                    }
                 }
+            }else if(currentState == GameState.WON){ //Fenêtre gagné
+                winView.Draw(spriteBatch);
+            }
+            else if (currentState == GameState.LOOSE) //Fenêtre perdu
+            {
+                looseView.Draw(spriteBatch);
             }
 
             //Fin de la mise a jour
@@ -292,49 +332,77 @@ namespace Pacman
             base.Draw(gameTime);
         }
 
+        private void InitViews()
+        {
+            SpriteFont font = AssetsManager.GetInstance().GetFont("default");
+
+            //On charge l'affichage des informations
+            informationsView = new InformationsView(GraphicsDevice, font);
+
+            //On charge la vue gagnante
+            winView = new WinView(font);
+
+            //On charge la vue perdante
+            looseView = new LooseView(font);
+        }
+
 
         private void InitEntitiesViews()
         {
             entitiesView = new List<EntityView>();
 
             //Vue pour Pacman
-            EntityView pv = new PacmanView(pacman);
-            pacman.SetInitialPosition(map.GetRandomInitialPacmanPosition());
-
-            entitiesView.Add(pv);
+            entitiesView.Add(new PacmanView(pacman));
 
             //Vues pour les fantomes
-            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new ShortestPathPolicy())));
-            entitiesView[1].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new RedMovementPolicy())));
 
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_BLEU, new BlueMovementPolicy())));
-            entitiesView[2].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROSE, new PinkMovementPolicy())));
-            entitiesView[3].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ORANGE, new OrangeMovementPolicy())));
-            entitiesView[4].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
+        }
 
+        private void InitEntitiesPosition()
+        {
+            foreach (EntityView ev in entitiesView)
+            {
+                if (ev.RelatedEntity is MovableEntity)
+                {
+                    ((MovableEntity)ev.RelatedEntity).AbortMovement();
+                }
 
-            
+                if (ev is PacmanView) pacman.SetInitialPosition(map.GetRandomInitialPacmanPosition());
+                else ev.RelatedEntity.Position = map.GetRandomInitialGhostPosition();
+            }
         }
 
         private void HandleInput()
         {
-            GamePadState currentState = GamePad.GetState(PlayerIndex.One);
-            
-            if (currentState.IsConnected)
+            GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+
+            //Si on était dans l'attente d'une interaction de l'user, on l'a reçu :)
+
+            //On regarde si la manette est connectée
+            bool result = false;
+
+            if (gamePadState.IsConnected)
             {
-                HandleGamePadInput(currentState);
+                result = HandleGamePadInput(gamePadState);
+                
             }
-            else
+            else //Sinon on utilise le clavier
             {
-                HandleKeyboardInput();
-            }            
+                result = HandleKeyboardInput();
+            }   
+         
+            if(result && currentState == GameState.WAITING_INTERACTION){
+                currentState = GameState.PLAYING;
+            }
         }
 
-        private void HandleGamePadInput(GamePadState state)
+        private bool HandleGamePadInput(GamePadState state)
         {
             Vector2 leftThumbSticks = state.ThumbSticks.Left;
 
@@ -350,8 +418,10 @@ namespace Pacman
                             if (pacman.Direction != EntityDirectionEnum.BOTTOM)
                             {
                                 pacman.Direction = EntityDirectionEnum.BOTTOM;
-                                pacman.AbortMovement();
+                                pacman.AbortMovement();                                
                             }
+
+                            return true;
                         }
                     }
                     else
@@ -360,8 +430,10 @@ namespace Pacman
                         if (pacman.Direction != EntityDirectionEnum.TOP)
                         {
                             pacman.Direction = EntityDirectionEnum.TOP;
-                            pacman.AbortMovement();
+                            pacman.AbortMovement();                            
                         }
+
+                        return true;
                     }
                 }
                 else
@@ -372,6 +444,8 @@ namespace Pacman
                         pacman.Direction = EntityDirectionEnum.LEFT;
                         pacman.AbortMovement();
                     }
+
+                    return true;
                 }
             }
             else
@@ -382,10 +456,14 @@ namespace Pacman
                     pacman.Direction = EntityDirectionEnum.RIGHT;
                     pacman.AbortMovement();
                 }
+
+                return true;
             }
+
+            return false;
         }
 
-        private void HandleKeyboardInput()
+        private bool HandleKeyboardInput()
         {
             KeyboardState state = Keyboard.GetState();
 
@@ -404,6 +482,8 @@ namespace Pacman
                                 pacman.Direction = EntityDirectionEnum.RIGHT;
                                 pacman.AbortMovement();
                             }
+
+                            return true;
                         }
                     }
                     else
@@ -414,6 +494,8 @@ namespace Pacman
                             pacman.Direction = EntityDirectionEnum.LEFT;
                             pacman.AbortMovement();
                         }
+
+                        return true;
                     }
                 }
                 else
@@ -424,6 +506,8 @@ namespace Pacman
                         pacman.Direction = EntityDirectionEnum.BOTTOM;
                         pacman.AbortMovement();
                     }
+
+                    return true;
                 }
             }
             else
@@ -434,7 +518,11 @@ namespace Pacman
                     pacman.Direction = EntityDirectionEnum.TOP;
                     pacman.AbortMovement();
                 }
+
+                return true;
             }
+
+            return false;
         }
 
         public void OnCompleted()
@@ -471,7 +559,7 @@ namespace Pacman
             }
             else if (type == typeof(MapAllBeansEatenSignal))
             {
-                Console.WriteLine("WIN");
+                currentState = GameState.WON;
             }
         }
 
@@ -489,7 +577,7 @@ namespace Pacman
 
         private enum GameState
         {
-            MENU, PLAYING, WON, LOOSE
+            MENU, PLAYING, WON, LOOSE, WAITING_INTERACTION
         }
     }
 }

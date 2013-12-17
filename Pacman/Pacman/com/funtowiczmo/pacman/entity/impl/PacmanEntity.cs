@@ -9,6 +9,8 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
 
         private int points;
         private bool isGodMode;
+        private int lifeRemaining = 3;
+
         private Dictionary<EntityDirectionEnum, string[]> assets;
 
         /// <summary>
@@ -120,6 +122,16 @@ namespace Pacman.com.funtowiczmo.pacman.entity.impl
             }
 
             return next;
+        }
+
+        public int RemainingLife
+        {
+            get { return lifeRemaining; }
+        }
+
+        public void RemoveALife()
+        {
+            --lifeRemaining;
         }
 
         public override string[] GetDefaultSkins()
