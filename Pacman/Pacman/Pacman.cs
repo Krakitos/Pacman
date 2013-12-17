@@ -232,9 +232,8 @@ namespace Pacman
                     else
                     {
                         GhostEntity ge = (GhostEntity)ev.RelatedEntity;
-                        next = ge.ComputeNextMove(pacman, map);
-                        next = pathfinder.GetPath(ge.Position, next);
-                        //next = pathfinder.GetPath(ge.Position, final);
+                        Vector2 goal = ge.ComputeNextMove(pacman, map);
+                        next = pathfinder.GetNextPointTo(ge.Position, goal);
                     }
 
                     //On demande à la map de vérifier que ce mouvement est possible

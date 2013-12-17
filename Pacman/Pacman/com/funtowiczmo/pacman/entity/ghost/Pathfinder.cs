@@ -35,53 +35,48 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         /// <param name="from">Point de départ</param>
         /// <param name="to">Point d'arriver</param>
         /// <returns>Renvoie le prochain point</returns>
-        public Vector2 GetPath(Vector2 from, Vector2 to)
+        public void GetPath(Point from, Point to)
         {
             bool end = false;
-
-            //On réinitialise les listes
-            closedList.Clear();
-            openedList.Clear();
-            paths.Clear();
 
             //On prend les points de départ et d'arrivée
             Point pFrom = new Point((int)from.X, (int)from.Y);
             Point pTo = new Point((int)to.X, (int)to.Y);
 
-            SearchNode newOpenListNode;
-
-            //On essaye de trouver le meilleur point pour le prochain mouvement
-            bool foundNewNode = SelectNodeToVisit(out newOpenListNode);
-            if (foundNewNode) //Si on l'a trouvé
+            while (!end)
             {
-                Point currentPos = newOpenListNode.position;
-                Console.Write(currentPos);
-                foreach (Point point in GetNeighbors(currentPos))
+
+                SearchNode newOpenListNode;
+
+                //On essaye de trouver le meilleur point pour le prochain mouvement
+                bool foundNewNode = SelectNodeToVisit(out newOpenListNode);
+                if (foundNewNode) //Si on l'a trouvé
                 {
-                    SearchNode neighbor = new SearchNode(point, ComputeDistance(currentPos, pTo), newOpenListNode.distanceTraveled + 1);
-                    if (!InList(openedList, point) && !InList(closedList, point))
+                    Point currentPos = newOpenListNode.position;
+                    foreach (Point point in GetNeighbors(currentPos))
                     {
-                        openedList.Add(neighbor);
-                        paths[point] = newOpenListNode.position;
+                        SearchNode neighbor = new SearchNode(point, ComputeDistance(currentPos, pTo), newOpenListNode.distanceTraveled + 1);
+                        if (!InList(openedList, point) && !InList(closedList, point))
+                        {
+                            openedList.Add(neighbor);
+                            paths[point] = newOpenListNode.position;
+                        }
                     }
-                }
 
-                if (currentPos == pTo)
+                    if (currentPos == pTo)
+                    {
+                        end = true;
+                    }
+
+                    openedList.Remove(newOpenListNode);
+                    closedList.Add(newOpenListNode);
+                }
+                else
                 {
-                    Console.WriteLine("Found !");
                     end = true;
-                }
-
-                openedList.Remove(newOpenListNode);
-                closedList.Add(newOpenListNode);
-
-                if (end)
-                {
-                    Point next = FinalPath(pTo).First.Value;
-                    return new Vector2(next.X, next.Y);
+                    throw new SystemException("No path found");
                 }
             }
-            return from;
         }
 
 
@@ -100,6 +95,42 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
                 path.AddFirst(curPrev);
             }
             return path;
+        }
+
+        public Vector2 GetNextPointTo(Vector2 from, Vector2 to)
+        {
+            //On réinitialise les listes
+            closedList.Clear();
+            openedList.Clear();
+            paths.Clear();
+
+            Point pFrom = new Point((int)from.X, (int)from.Y);
+            Point pTo = new Point((int)to.X, (int)to.Y);
+
+            //On ajoute le point de départ
+            openedList.Add(new SearchNode(pFrom, ComputeDistance(pFrom, pTo), 0));
+
+            //On cherche notre chemin
+            try
+            {
+                GetPath(pFrom, pTo);
+            }
+            catch (Exception)
+            {
+                return from;
+            }
+
+            //On récupère le chemin généré
+            LinkedList<Point> path = FinalPath(pTo);
+            path.RemoveFirst();
+
+            if (path.First != null)
+            {
+                Point next = path.First.Value;
+                return new Vector2(next.X, next.Y);
+            }
+
+            return from;
         }
 
         /// <summary>
