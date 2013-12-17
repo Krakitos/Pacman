@@ -106,15 +106,16 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="com\funtowiczmo\pacman\entity\AbstractEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\EntityDirectionEnum.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\EntitySkinEnum.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\BlueMovementPolicy.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\ghost\IMovementPolicy.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\OrangeMovementPolicy.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\ghost\Pathfinder.cs" />
-    <Compile Include="com\funtowiczmo\pacman\entity\ghost\ShortestPathPolicy.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\PinkMovementPolicy.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\RunAwayMovementPolicy.cs" />
+    <Compile Include="com\funtowiczmo\pacman\entity\ghost\RedMovementPolicy.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\IEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\impl\GhostEntity.cs" />
     <Compile Include="com\funtowiczmo\pacman\entity\impl\PacmanEntity.cs" />
@@ -133,9 +134,13 @@
     <Compile Include="com\funtowiczmo\pacman\sounds\SoundEnum.cs" />
     <Compile Include="com\funtowiczmo\pacman\sounds\SoundManager.cs" />
     <Compile Include="com\funtowiczmo\pacman\utils\AssetsManager.cs" />
+    <Compile Include="com\funtowiczmo\pacman\utils\MapUtils.cs" />
+    <Compile Include="com\funtowiczmo\pacman\utils\MathUtils.cs" />
     <Compile Include="com\funtowiczmo\pacman\utils\MovementsHelper.cs" />
     <Compile Include="com\funtowiczmo\pacman\utils\signal\Signal.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\AnimatedTexture.cs" />
+    <Compile Include="com\funtowiczmo\pacman\view\LooseView.cs" />
+    <Compile Include="com\funtowiczmo\pacman\view\WinView.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\EntityView.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\impl\PacmanView.cs" />
     <Compile Include="com\funtowiczmo\pacman\view\InformationsView.cs" />
