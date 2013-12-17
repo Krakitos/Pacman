@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Pacman.com.funtowiczmo.pacman.entity;
 using Pacman.com.funtowiczmo.pacman.errors;
 using Pacman.com.funtowiczmo.pacman.map.signal;
+using Pacman.com.funtowiczmo.pacman.utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -270,12 +271,11 @@ namespace Pacman.com.funtowiczmo.pacman.map
         public Vector2 GetRandomInitialPacmanPosition()
         {
             int x, y;
-            Random rand = new Random(System.DateTime.Now.Millisecond);
 
             do
             {
-                y = rand.Next(1, grid.Length - 1);
-                x = rand.Next(1, grid[y].Length - 1);
+                y = MathUtils.Random(1, grid.Length - 1);
+                x = MathUtils.Random(1, grid[y].Length - 1);
 
             } while (grid[y][x] != 1);
 
@@ -289,11 +289,10 @@ namespace Pacman.com.funtowiczmo.pacman.map
         public Vector2 GetRandomInitialGhostPosition()
         {
             int x, y;
-            Random rand = new Random(System.DateTime.Now.Millisecond);
             do
             {
-                y = rand.Next(1, grid.Length - 1);
-                x = rand.Next(1, grid[y].Length - 1);
+                y = MathUtils.Random(1, grid.Length - 1);
+                x = MathUtils.Random(1, grid[y].Length - 1);
 
             } while (grid[y][x] != 3);
 
