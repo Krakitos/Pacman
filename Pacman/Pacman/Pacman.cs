@@ -35,7 +35,7 @@ namespace Pacman
         public const int MOVEMENTS_DURATION = 200; //ms
 
         //Variables de contexte
-        bool firstFrame = true;
+        GameState currentState = GameState.MENU;
 
         //Map
         Pathfinder pathfinder;
@@ -232,7 +232,9 @@ namespace Pacman
                     else
                     {
                         GhostEntity ge = (GhostEntity)ev.RelatedEntity;
-                        next = ge.ComputeNextMove(pacman.Position, map);
+                        next = ge.ComputeNextMove(pacman, map);
+                        next = pathfinder.GetPath(ge.Position, next);
+                        //next = pathfinder.GetPath(ge.Position, final);
                     }
 
                     //On demande à la map de vérifier que ce mouvement est possible
@@ -306,13 +308,13 @@ namespace Pacman
             entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROUGE, new ShortestPathPolicy())));
             entitiesView[1].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
-            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_BLEU, new ShortestPathPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_BLEU, new BlueMovementPolicy())));
             entitiesView[2].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
-            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROSE, new ShortestPathPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ROSE, new PinkMovementPolicy())));
             entitiesView[3].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
-            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ORANGE, new ShortestPathPolicy())));
+            entitiesView.Add(new EntityView(new GhostEntity(EntitySkinEnum.FANTOME_ORANGE, new OrangeMovementPolicy())));
             entitiesView[4].RelatedEntity.Position = map.GetRandomInitialGhostPosition();
 
 
@@ -484,6 +486,11 @@ namespace Pacman
                     g.AffraidMode = !g.AffraidMode;
                 }
             }
+        }
+
+        private enum GameState
+        {
+            MENU, PLAYING, WON, LOOSE
         }
     }
 }
