@@ -37,6 +37,8 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
         /// <returns>Renvoie le prochain point</returns>
         public Vector2 GetPath(Vector2 from, Vector2 to)
         {
+            bool end = false;
+
             //On réinitialise les listes
             closedList.Clear();
             openedList.Clear();
@@ -46,9 +48,6 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
             Point pFrom = new Point((int)from.X, (int)from.Y);
             Point pTo = new Point((int)to.X, (int)to.Y);
 
-            //On ajoute le point de départ dans les noeuds à visiter
-            openedList.Add(new SearchNode(pFrom, ComputeDistance(pFrom, pTo), 0));
-
             SearchNode newOpenListNode;
 
             //On essaye de trouver le meilleur point pour le prochain mouvement
@@ -56,6 +55,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
             if (foundNewNode) //Si on l'a trouvé
             {
                 Point currentPos = newOpenListNode.position;
+                Console.Write(currentPos);
                 foreach (Point point in GetNeighbors(currentPos))
                 {
                     SearchNode neighbor = new SearchNode(point, ComputeDistance(currentPos, pTo), newOpenListNode.distanceTraveled + 1);
@@ -68,13 +68,18 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
 
                 if (currentPos == pTo)
                 {
-                    //Finish
-                    Point next = FinalPath(pTo).First.Value;
-                    return new Vector2(next.X, next.Y);
+                    Console.WriteLine("Found !");
+                    end = true;
                 }
 
                 openedList.Remove(newOpenListNode);
                 closedList.Add(newOpenListNode);
+
+                if (end)
+                {
+                    Point next = FinalPath(pTo).First.Value;
+                    return new Vector2(next.X, next.Y);
+                }
             }
             return from;
         }
@@ -110,20 +115,23 @@ namespace Pacman.com.funtowiczmo.pacman.entity.ghost
             float currentDistance = 0f;
             if (openedList.Count > 0)
             {
-
+                //Pour tous les noeuds de la liste ouverte
                 foreach (SearchNode node in openedList)
                 {
+                    //On récupère la distance actuelle
                     currentDistance = node.distanceTraveled + node.distanceToGoal;
 
                     if (currentDistance <= smallestDistance)
                     {
+                        //Si la distance est inférieure, on prend !
                         if (currentDistance < smallestDistance)
                         {
                             success = true;
                             result = node;
                             smallestDistance = currentDistance;
                         }
-                        else if (currentDistance == smallestDistance && node.distanceTraveled > result.distanceTraveled)
+                        //Sinon on regarde si la distance point à point est égale, mais que la distance totale pour arriver à ce point est inférieure
+                        else if (currentDistance == smallestDistance && node.distanceTraveled > result.distanceTraveled)                                                                                     
                         {
                             success = true;
                             result = node;
