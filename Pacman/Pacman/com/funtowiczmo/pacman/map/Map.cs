@@ -261,7 +261,7 @@ namespace Pacman.com.funtowiczmo.pacman.map
         /// <returns>True si le mouvement est possible, false sinon</returns>
         public bool IsNextMoveAuthorized(Vector2 p)
         {
-            return grid[(int)p.Y][(int)p.X] != 0;
+            return IsNextMoveAuthorized((int)p.X, (int)p.Y);
         }
 
         /// <summary>
@@ -412,7 +412,8 @@ namespace Pacman.com.funtowiczmo.pacman.map
         /// <returns>True si cette position est dans la zone de respawn des fantômes, false sinon</returns>
         public bool IsInTheCradle(int x, int y)
         {
-            return grid[y][x] == 3 || grid[y][x] == -3;
+            int val = grid[y][x];
+            return val == 3 || val == -3;
         }
 
         public bool isNextToBigBean(Vector2 pos)
