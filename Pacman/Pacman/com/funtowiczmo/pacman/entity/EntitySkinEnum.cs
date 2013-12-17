@@ -28,6 +28,7 @@ namespace Pacman.com.funtowiczmo.pacman.entity
         BEAN = "images/gros_bean",
         GROS_BEAN = "images/bean",
         MUR = "images/mur",
-        ROUTE = "images/road";
+        ROUTE = "images/road",
+        HEART = "images/heart";
     }
 }
