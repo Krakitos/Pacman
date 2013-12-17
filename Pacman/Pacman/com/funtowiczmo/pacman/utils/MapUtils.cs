@@ -9,6 +9,19 @@ namespace Pacman.com.funtowiczmo.pacman.utils
 {
     public class MapUtils
     {
+
+        public static EntityDirectionEnum getOppositeDirection(EntityDirectionEnum direction)
+        {
+            if(direction == EntityDirectionEnum.LEFT){
+                return EntityDirectionEnum.RIGHT;
+            }else if(direction == EntityDirectionEnum.RIGHT){
+                return EntityDirectionEnum.LEFT;
+            }else if(direction == EntityDirectionEnum.BOTTOM){
+                return EntityDirectionEnum.TOP;
+            }else{                
+                return EntityDirectionEnum.BOTTOM;
+            }
+        }
         public static Vector2 GetNextPointWithDirection(Vector2 pos, EntityDirectionEnum direction)
         {
             Vector2 next = new Vector2(pos.X, pos.Y);
@@ -16,12 +29,12 @@ namespace Pacman.com.funtowiczmo.pacman.utils
             {
                 case EntityDirectionEnum.BOTTOM:
                     {
-                        --next.Y;
+                        ++next.Y;
                         break;
                     }
                 case EntityDirectionEnum.TOP:
                     {
-                        ++next.Y;
+                        --next.Y;
                         break;
                     }
                 case EntityDirectionEnum.LEFT:
