@@ -113,7 +113,7 @@ namespace Pacman.com.funtowiczmo.pacman.map
         /// <param name="pos"></param>
         public void CheckPosition(Vector2 pos)
         {
-            int val = grid[(int)pos.Y][(int)pos.X];
+            int val = GetValueAt(pos.X, pos.Y);
 
             switch (val)
             {
@@ -175,6 +175,28 @@ namespace Pacman.com.funtowiczmo.pacman.map
                 if (_observer != null && _observers.Contains(_observer))
                     _observers.Remove(_observer);
             }
+        }
+
+        /// <summary>
+        /// Renvoie la valeur à la position (x,y)
+        /// </summary>
+        /// <param name="x">Position en x</param>
+        /// <param name="y">Position en y</param>
+        /// <returns></returns>
+        public int GetValueAt(int x, int y)
+        {
+            return grid[y][x];
+        }
+
+        /// <summary>
+        /// Renvoie la valeur à la position (x,y)
+        /// </summary>
+        /// <param name="x">Position en x</param>
+        /// <param name="y">Position en y</param>
+        /// <returns></returns>
+        public int GetValueAt(float x, float y)
+        {
+            return GetValueAt((int)x, (int)y);
         }
 
         /// <summary>
@@ -392,6 +414,24 @@ namespace Pacman.com.funtowiczmo.pacman.map
         public bool IsInTheCradle(int x, int y)
         {
             return grid[y][x] == 3 || grid[y][x] == -3;
+        }
+
+        public bool isNextToBigBean(Vector2 pos)
+        {
+            int x = (int)Math.Max(0, pos.X - 1);
+            int y = (int)Math.Max(0, pos.Y - 1);
+            int xMax = (int)Math.Min(x + 3, grid[y].Length - 1);
+            int yMax = (int)Math.Min(y + 3, grid.Length - 1);
+
+            for (; x < xMax; x++)
+            {
+                for (; y < yMax; y++)
+                {
+                    if (grid[y][x] == 3) return true;
+                }
+            }
+
+            return false;
         }
     }
 
